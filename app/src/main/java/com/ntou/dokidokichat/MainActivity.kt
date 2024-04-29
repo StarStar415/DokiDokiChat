@@ -179,6 +179,8 @@ fun LoginScreen() {
                 )
                 var username by remember { mutableStateOf("starstar") }
                 var password by remember { mutableStateOf("01057132") }
+                var gmail by remember { mutableStateOf("01057132@email.ntou.edu.tw") }
+                var showGmailField by remember { mutableStateOf(false) }
                 var passwordVisibility by remember { mutableStateOf(false) }
                 OutlinedTextField(
                     value = username,
@@ -195,6 +197,25 @@ fun LoginScreen() {
                         .fillMaxWidth()
                     // TextField 的背景顏色為父元素的背景顏色
                 )
+
+                if (showGmailField) {
+                    // Gmail field
+                    OutlinedTextField(
+                        value = gmail,
+                        onValueChange = { gmail = it },
+                        label = {
+                            Text(
+                                "Gmail",
+                                fontSize = 15.sp
+                            )
+                        },
+                        modifier = Modifier
+                            .padding(bottom = 8.dp)
+                            .fillMaxWidth()
+                        // TextField 的背景顏色為父元素的背景顏色
+                    )
+                }
+
                 OutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
@@ -215,6 +236,9 @@ fun LoginScreen() {
                     }
                 )
 
+
+
+
                 Button(
                     onClick = { /* 登入操作 */ },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF48FB1)),
@@ -225,7 +249,7 @@ fun LoginScreen() {
 
                 ) {
                     Text(
-                        "Login",
+                        if (showGmailField) "Sign up" else "Login",
                         color = Color.White // 設置文字顏色為白色
                     )
                 }
@@ -233,10 +257,10 @@ fun LoginScreen() {
                 Row {
                     // 註冊
                     TextButton(
-                        onClick = { /* 註冊操作 */ },
+                        onClick = { showGmailField = !showGmailField },
                         modifier = Modifier.padding(top = 8.dp) // 添加上方的外邊距
                     ) {
-                        Text("Sign up")
+                        Text(if (showGmailField) "Sign in" else "Sign up")
                     }
                     TextButton(
                         onClick = { /* 忘記密碼操作 */ },
