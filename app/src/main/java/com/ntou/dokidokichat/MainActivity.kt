@@ -1,5 +1,7 @@
 package com.ntou.dokidokichat
 
+import android.content.Context
+import android.content.Intent
 import android.graphics.PointF
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -40,11 +42,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asComposePath
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat.startActivity
 import androidx.core.graphics.plus
 import androidx.core.graphics.times
 import androidx.graphics.shapes.CornerRounding
@@ -56,8 +60,13 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 class MainActivity : ComponentActivity() {
+    companion object {
+        val KEY_USER_NAME: String = "KEY_USER_NAME"
+        val KEY_PASSWORD: String = "KEY_PASSWORD"
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
             LoginScreen()
         }
@@ -66,6 +75,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun LoginScreen() {
+    var context = LocalContext.current
     Surface(
         color = Color(0xFFFFC1E0),
 
@@ -177,11 +187,24 @@ fun LoginScreen() {
                             bottom = 8.dp
                         ) // 將 Text 上緣對齊到 Column 上緣，下緣間距 8dp
                 )
+
+
                 var username by remember { mutableStateOf("starstar") }
                 var password by remember { mutableStateOf("01057132") }
                 var gmail by remember { mutableStateOf("01057132@email.ntou.edu.tw") }
                 var showGmailField by remember { mutableStateOf(false) }
                 var passwordVisibility by remember { mutableStateOf(false) }
+//                Text(
+//                    if (showGmailField) "Sign up" else "Sign in",
+//                    fontSize = 20.sp,
+//                    modifier = Modifier
+//                        .padding(bottom = 10.dp)
+//                        .paddingFromBaseline(
+//                            top = 0.dp,
+//                            bottom = 8.dp
+//                        ) // 將 Text 上緣對齊到 Column 上緣，下緣間距 8dp
+//                )
+
                 OutlinedTextField(
                     value = username,
                     onValueChange = { username = it },
@@ -240,19 +263,24 @@ fun LoginScreen() {
 
 
                 Button(
-                    onClick = { /* 登入操作 */ },
+                    onClick = {
+                        if (!showGmailField) {
+                            clickButtonToChat(context,username,password)
+                        } else {
+//
+                        }
+                    },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF48FB1)),
                     shape = MaterialTheme.shapes.medium,
                     modifier = Modifier
                         .fillMaxWidth()
-                    //                    .padding(horizontal = 40.dp, vertical = 8.dp),
-
                 ) {
                     Text(
                         if (showGmailField) "Sign up" else "Login",
-                        color = Color.White // 設置文字顏色為白色
+                        color = Color.White
                     )
                 }
+
 
                 Row {
                     // 註冊
@@ -274,4 +302,14 @@ fun LoginScreen() {
             }
         }
     }
+}
+
+fun clickButtonToChat(context: Context, username: String, password: String) {
+    val intent = Intent()
+    intent.setClassName(context,
+        "com.ntou.dokidokichat.FriendsPage")
+    intent.putExtra(MainActivity.KEY_USER_NAME, username)
+    intent.putExtra(MainActivity.KEY_PASSWORD, password)
+
+    context.startActivity(intent)
 }
