@@ -12,10 +12,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -33,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 class FriendsPage : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,6 +67,7 @@ fun ShowUserChatScreen() {
             when (selectedTab.value) {
                 Tab.Profile -> UserProfileScreen(selectedTab)
                 Tab.ChatList -> ChatListScreen(selectedTab)
+                Tab.SettingList -> SettingListScreen(selectedTab)
             }
 
             Spacer(modifier = Modifier.weight(1f))
@@ -113,13 +117,40 @@ fun ChatListScreen(selectedTab: MutableState<Tab>) {
     }
 
 }
+
+@Composable
+fun SettingListScreen(selectedTab: MutableState<Tab>) {
+    Surface(
+        color = Color.White ,// Pink background
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Top
+        ) {
+            Spacer(modifier = Modifier.weight(1f))
+
+            Text(
+                text = "Setting List Screen",
+//                modifier = Modifier.padding(16.dp)
+            )
+            Spacer(modifier = Modifier.weight(1f))
+
+            BottomNavigationScreen(selectedTab)
+        }
+    }
+
+}
 @Composable
 fun BottomNavigation(
     selectedTab: Tab,
     onTabSelected: (Tab) -> Unit
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(0.dp).background(color = Color(0xFFF48FB1)),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(0.dp)
+            .background(color = Color(0xFFF48FB1)),
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically,
 
@@ -139,6 +170,14 @@ fun BottomNavigation(
             onClick = { onTabSelected(Tab.ChatList) },
 //            modifier = Modifier.weight(1f) // 使用權重設置寬度為父元素寬度的一部分
         )
+
+        BottomNavigationItem(
+            icon = Icons.Default.Settings,
+            text = "Setting",
+            selected = selectedTab == Tab.SettingList,
+            onClick = { onTabSelected(Tab.SettingList) },
+//            modifier = Modifier.weight(1f) // 使用權重設置寬度為父元素寬度的一部分
+        )
     }
 }
 
@@ -156,13 +195,18 @@ fun BottomNavigationItem(
         shape = MaterialTheme.shapes.extraLarge,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Icon(icon, contentDescription = null)
+            Icon(
+                icon,
+                contentDescription = null,
+                modifier = Modifier.size(35.dp) // 設置圖像大小
+            )
             Text(
                 text = text,
-//                modifier = Modifier.padding(top = 4.dp)
+                fontSize = 15.sp,
+                modifier = Modifier.padding(top = 4.dp) // 上邊距
             )
         }
     }
 }
 
-enum class Tab { Profile, ChatList }
+enum class Tab { Profile, ChatList, SettingList }
