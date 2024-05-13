@@ -90,7 +90,6 @@ fun BottomNavigationScreen(selectedTab: MutableState<Tab>) {
 fun UserProfileScreen(selectedTab: MutableState<Tab>) {
     Text(
         text = "User Profile Screen",
-//        modifier = Modifier.padding(16.dp)
     )
 }
 
@@ -108,7 +107,6 @@ fun ChatListScreen(selectedTab: MutableState<Tab>) {
 
             Text(
                 text = "Chat List Screen",
-//                modifier = Modifier.padding(16.dp)
             )
             Spacer(modifier = Modifier.weight(1f))
 
@@ -132,7 +130,6 @@ fun SettingListScreen(selectedTab: MutableState<Tab>) {
 
             Text(
                 text = "Setting List Screen",
-//                modifier = Modifier.padding(16.dp)
             )
             Spacer(modifier = Modifier.weight(1f))
 
@@ -160,7 +157,6 @@ fun BottomNavigation(
             text = "Profile",
             selected = selectedTab == Tab.Profile,
             onClick = { onTabSelected(Tab.Profile) },
-//            modifier = Modifier.weight(1f) // 使用權重設置寬度為父元素寬度的一部分
         )
 
         BottomNavigationItem(
@@ -168,7 +164,6 @@ fun BottomNavigation(
             text = "Chat List",
             selected = selectedTab == Tab.ChatList,
             onClick = { onTabSelected(Tab.ChatList) },
-//            modifier = Modifier.weight(1f) // 使用權重設置寬度為父元素寬度的一部分
         )
 
         BottomNavigationItem(
@@ -176,7 +171,6 @@ fun BottomNavigation(
             text = "Setting",
             selected = selectedTab == Tab.SettingList,
             onClick = { onTabSelected(Tab.SettingList) },
-//            modifier = Modifier.weight(1f) // 使用權重設置寬度為父元素寬度的一部分
         )
     }
 }
@@ -191,19 +185,18 @@ fun BottomNavigationItem(
     Button(
         onClick = onClick,
         colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
-//        modifier = Modifier.fillMaxWidth(0.5f),
         shape = MaterialTheme.shapes.extraLarge,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Icon(
                 icon,
                 contentDescription = null,
-                modifier = Modifier.size(35.dp) // 設置圖像大小
+                modifier = Modifier.size(35.dp)
             )
             Text(
                 text = text,
                 fontSize = 15.sp,
-                modifier = Modifier.padding(top = 4.dp) // 上邊距
+                modifier = Modifier.padding(top = 4.dp)
             )
         }
     }

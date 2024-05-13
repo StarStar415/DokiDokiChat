@@ -1,9 +1,11 @@
 package com.ntou.dokidokichat
 
+import android.app.VoiceInteractor
 import android.content.Context
 import android.content.Intent
 import android.graphics.PointF
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -55,11 +57,30 @@ import androidx.graphics.shapes.CornerRounding
 import androidx.graphics.shapes.RoundedPolygon
 import androidx.graphics.shapes.toPath
 import com.ntou.dokidokichat.ui.theme.DokiDokiChatTheme
+import okhttp3.FormBody
+import okhttp3.OkHttpClient
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
+import okhttp3.*
+import org.json.JSONException
+import org.json.JSONObject
+import java.io.IOException
+
 
 class MainActivity : ComponentActivity() {
+    object Constants {
+        const val PAGE_SIZE: Int = 20
+        object LoginAPI {
+            const val URL: String = "http://localhost:8080/"
+            const val NAME = "login_api"
+        }
+
+        object SignUpAPI {
+            const val URL: String = "http://localhost:8080/"
+            const val NAME = "sign_up_api"
+        }
+    }
     companion object {
         val KEY_USER_NAME: String = "KEY_USER_NAME"
         val KEY_PASSWORD: String = "KEY_PASSWORD"
@@ -76,6 +97,13 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun LoginScreen() {
     var context = LocalContext.current
+    var username by remember { mutableStateOf("starstar") }
+    var password by remember { mutableStateOf("01057132") }
+    var gmail by remember { mutableStateOf("01057132@email.ntou.edu.tw") }
+    var showGmailField by remember { mutableStateOf(false) }
+    var loginSuccess by remember { mutableStateOf(true) }
+    var passwordVisibility by remember { mutableStateOf(false) }
+
     Surface(
         color = Color(0xFFFFC1E0),
 
@@ -85,7 +113,6 @@ fun LoginScreen() {
                 .fillMaxSize()
                 .background(color = Color(0xFFFFD9EC))
                 .padding(20.dp),
-                // 更改 column 的背景顏色
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -93,10 +120,6 @@ fun LoginScreen() {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(10.dp),
-//                    .background(
-//                        color = Color.Transparent,
-//                        shape = RoundedCornerShape(16.dp))
-//                    .border(2.dp, Color.Black),
                 contentAlignment = Alignment.Center,
             ){
             Column (
@@ -105,14 +128,13 @@ fun LoginScreen() {
                 modifier = Modifier
                     .padding(10.dp)
             ){
-
-
+                // 畫愛心
                 fun directionVectorPointF(angleRadians: Float) =
                     PointF(cos(angleRadians), sin(angleRadians))
                 fun Float.toRadians() = this * PI.toFloat() / 180f
 
-                 val PointZero = PointF(0f, 0f)
-                 fun radialToCartesian(
+                val PointZero = PointF(0f, 0f)
+                fun radialToCartesian(
                     radius: Float,
                     angleRadians: Float,
                     center: PointF = PointZero
@@ -156,6 +178,7 @@ fun LoginScreen() {
                         perVertexRounding = rounding
                     )
                 }
+
                 Box(
                     modifier = Modifier
                         .drawWithCache {
@@ -174,8 +197,7 @@ fun LoginScreen() {
                         .size(200.dp)
                 )
 
-
-
+                // 標題
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
                     text = "DokiDoki Chat",
@@ -185,25 +207,8 @@ fun LoginScreen() {
                         .paddingFromBaseline(
                             top = 0.dp,
                             bottom = 8.dp
-                        ) // 將 Text 上緣對齊到 Column 上緣，下緣間距 8dp
+                        )
                 )
-
-
-                var username by remember { mutableStateOf("starstar") }
-                var password by remember { mutableStateOf("01057132") }
-                var gmail by remember { mutableStateOf("01057132@email.ntou.edu.tw") }
-                var showGmailField by remember { mutableStateOf(false) }
-                var passwordVisibility by remember { mutableStateOf(false) }
-//                Text(
-//                    if (showGmailField) "Sign up" else "Sign in",
-//                    fontSize = 20.sp,
-//                    modifier = Modifier
-//                        .padding(bottom = 10.dp)
-//                        .paddingFromBaseline(
-//                            top = 0.dp,
-//                            bottom = 8.dp
-//                        ) // 將 Text 上緣對齊到 Column 上緣，下緣間距 8dp
-//                )
 
                 OutlinedTextField(
                     value = username,
@@ -218,7 +223,6 @@ fun LoginScreen() {
                     modifier = Modifier
                         .padding(bottom = 8.dp)
                         .fillMaxWidth()
-                    // TextField 的背景顏色為父元素的背景顏色
                 )
 
                 if (showGmailField) {
@@ -235,7 +239,6 @@ fun LoginScreen() {
                         modifier = Modifier
                             .padding(bottom = 8.dp)
                             .fillMaxWidth()
-                        // TextField 的背景顏色為父元素的背景顏色
                     )
                 }
 
@@ -259,17 +262,32 @@ fun LoginScreen() {
                     }
                 )
 
-
+                Text(
+                    if (loginSuccess) "" else "Login failed",
+                    color = Color.Red
+                )
 
 
                 Button(
                     onClick = {
                         if (!showGmailField) {
-                            clickButtonToChat(context,username,password)
+                            loginToServer(username, password) { success ->
+                                if (success) {
+                                    // 登入成功 切換到下個頁面
+                                    loginSuccess = true
+                                    clickButtonToChat(context, username, password)
+                                } else {
+                                    // 登入失敗 顯示Login failed
+                                    loginSuccess = false
+//                                    Log.e("Login", "Login failed")
+                                }
+                            }
                         } else {
-//
+                            // 註冊
                         }
                     },
+
+//
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF48FB1)),
                     shape = MaterialTheme.shapes.medium,
                     modifier = Modifier
@@ -280,6 +298,7 @@ fun LoginScreen() {
                         color = Color.White
                     )
                 }
+
 
 
                 Row {
@@ -304,6 +323,9 @@ fun LoginScreen() {
     }
 }
 
+
+
+
 fun clickButtonToChat(context: Context, username: String, password: String) {
     val intent = Intent()
     intent.setClassName(context,
@@ -312,4 +334,48 @@ fun clickButtonToChat(context: Context, username: String, password: String) {
     intent.putExtra(MainActivity.KEY_PASSWORD, password)
 
     context.startActivity(intent)
+}
+
+fun loginToServer(username: String, password: String, onResult: (Boolean) -> Unit) {
+    // 登入請求
+    val requestBody = FormBody.Builder()
+        .add("username", username)
+        .add("password", password)
+        .build()
+
+    val request = Request.Builder()
+        .url(MainActivity.Constants.LoginAPI.URL)
+        .post(requestBody)
+        .build()
+
+    val client = OkHttpClient()
+    client.newCall(request).enqueue(object : Callback {
+        override fun onFailure(call: Call, e: IOException) {
+            // 登入失敗回傳 false
+            Log.e("Login", "Failed to login: ${e.message}")
+            onResult(false)
+        }
+
+        override fun onResponse(call: Call, response: Response) {
+            val responseBody = response.peekBody(Long.MAX_VALUE) // Read the entire body into memory as a string
+            val responseData = responseBody.string()
+
+
+            try {
+                val jsonResponse = JSONObject(responseData)
+                val success = jsonResponse.getBoolean("success")
+
+                // 根据服务器返回的结果调用相应的回调函数
+                if (success) {
+                    onResult(true) // 登入成功，回傳 true
+                } else {
+                    onResult(false) // 登入失败，回傳 false
+                }
+            } catch (e: JSONException) {
+                
+                Log.e("Login", "Failed to parse JSON: ${e.message}")
+                onResult(false)
+            }
+        }
+    })
 }
