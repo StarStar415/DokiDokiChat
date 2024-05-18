@@ -48,10 +48,8 @@ import androidx.core.graphics.times
 import androidx.graphics.shapes.CornerRounding
 import androidx.graphics.shapes.RoundedPolygon
 import androidx.graphics.shapes.toPath
-import com.google.android.gms.tasks.OnCompleteListener
-import com.google.android.gms.tasks.Task
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.QuerySnapshot
+import com.ntou.dokidokichat.data.model.User
 import okhttp3.*
 import org.json.JSONException
 import org.json.JSONObject
@@ -81,28 +79,16 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val database = FirebaseFirestore.getInstance()
-        database.collection("user")
-            .whereEqualTo("email", "avery2070527@gmail.com")
-            .get()
-            .addOnCompleteListener(OnCompleteListener<QuerySnapshot?> { task: Task<QuerySnapshot?> ->
-                if (task.isSuccessful && task.result != null && task.result!!
-                        .documents.size > 0
-                ) {
-                    Log.d("log", "success")
-                } else {
-                    Log.d("log", "fail")
-                }
-            })
+        val db = FirebaseFirestore.getInstance()
 
         setContent {
-            LoginScreen()
+            LoginScreen(db)
         }
     }
 }
 
 @Composable
-fun LoginScreen() {
+fun LoginScreen(db: FirebaseFirestore) {
     var context = LocalContext.current
     var username by remember { mutableStateOf("starstar") }
     var password by remember { mutableStateOf("01057132") }
@@ -280,6 +266,19 @@ fun LoginScreen() {
                 Button(
                     onClick = {
                         if (!showGmailField) {
+                            db.collection("user").whereEqualTo("username", username)
+                                .get().addOnCompleteListener {task ->
+                                    if (task.isSuccessful && task.result != null && task.result
+                                            .documents
+                                            .size > 0
+                                    ) {
+                                        loginSuccess = true
+                                        clickButtonToChat(context, username, password)
+                                    } else {
+                                        loginSuccess = false
+                                        Log.e("Login", "Login failed")
+                                    }
+                                }
 //                            loginToServer(username, password) { success ->
 //                                if (success) {
 //                                    // 登入成功 切換到下個頁面
@@ -288,12 +287,20 @@ fun LoginScreen() {
 //                                } else {
 //                                    // 登入失敗 顯示Login failed
 //                                    loginSuccess = false
-////                                    Log.e("Login", "Login failed")
+//                                    Log.e("Login", "Login failed")
 //                                }
 //                            }
-                            clickButtonToChat(context, username, password)
+//                            clickButtonToChat(context, username, password)
                         } else {
-                            // 註冊
+                            db.collection("user").add(User("","01057132@email.ntou.edu.tw",
+                                emptyList(),false,"starstar","01057132","zjPjbMzB7uR3AjBcgh2C",
+                                "starstar"))
+                                .addOnSuccessListener { documentReference ->
+                                    Log.d("signup", "success")
+                                }
+                                .addOnFailureListener { e ->
+                                    Log.e("signup", "fail")
+                                }
                         }
                     },
 
