@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -82,72 +83,90 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
         color = Color.White,
         modifier = Modifier.fillMaxSize()
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Profile Picture
-            Box(
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(
                 modifier = Modifier
-                    .size(100.dp)
-                    .border(2.dp, color = Color(0xFFFFD9EC), CircleShape)
-                    .background(color = Color(0xFFFFD9EC), CircleShape)
+                    .fillMaxSize(),
+                verticalArrangement = Arrangement.Top,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Icon(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = "Profile Picture",
-                    tint = Color.White,
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Profile Picture
+                Box(
                     modifier = Modifier
-                        .size(90.dp)
-                        .align(Alignment.Center)
+                        .size(100.dp)
+                        .border(2.dp, color = Color(0xFFFFD9EC), CircleShape)
+                        .background(color = Color(0xFFFFD9EC), CircleShape)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Person,
+                        contentDescription = "Profile Picture",
+                        tint = Color.White,
+                        modifier = Modifier
+                            .size(90.dp)
+                            .align(Alignment.Center)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Username
+                Text(
+                    text = displayName,
+                    fontSize = 25.sp,
+                    modifier = Modifier.padding(bottom = 10.dp)
                 )
-            }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Username
-            Text(
-                text = displayName,
-                fontSize = 25.sp,
-                modifier = Modifier.padding(bottom = 10.dp)
-            )
-
-            // Search Bar
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                BasicTextField(
-                    value = searchQuery,
-                    onValueChange = { searchQuery = it },
+                // Search Bar
+                Row(
                     modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    BasicTextField(
+                        value = searchQuery,
+                        onValueChange = { searchQuery = it },
+                        modifier = Modifier
+                            .weight(1f)
+                            .background(color = Color(0xFFFFD9EC), shape = MaterialTheme.shapes.small)
+                            .padding(8.dp)
+                    )
+                    IconButton(onClick = { /* Handle search action */ }) {
+                        Icon(Icons.Default.Search, contentDescription = "Search")
+                    }
+                }
+
+                // Friends List
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
                         .weight(1f)
-                        .background(color = Color(0xFFFFD9EC), shape = MaterialTheme.shapes.small)
-                        .padding(8.dp)
-                )
-                IconButton(onClick = { /* Handle search action */ }) {
-                    Icon(Icons.Default.Search, contentDescription = "Search")
+                ) {
+                    items(friendsList) { friend ->
+                        Text(text = friend, fontSize = 16.sp, modifier = Modifier.padding(8.dp))
+                    }
                 }
+                // Bottom Navigation
+                BottomNavigationScreen(selectedTab)
+            }
+            // Add Friend Button
+            FloatingActionButton(
+                onClick = { /* Handle add friend action */ },
+                containerColor = Color(0xFFFFD9EC),
+                contentColor = Color.White,
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(bottom = 100.dp, end = 30.dp),
+                shape = CircleShape,
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "Add Friend")
             }
 
-            // Friends List
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-                    .weight(1f)
-            ) {
-                items(friendsList) { friend ->
-                    Text(text = friend, fontSize = 16.sp, modifier = Modifier.padding(8.dp))
-                }
-            }
-            BottomNavigationScreen(selectedTab)
+
+
         }
     }
 }
@@ -173,7 +192,6 @@ fun ChatListScreen(selectedTab: MutableState<Tab>, userName: String?) {
 
             Spacer(modifier = Modifier.weight(1f))
             BottomNavigationScreen(selectedTab)
-
         }
     }
 }
