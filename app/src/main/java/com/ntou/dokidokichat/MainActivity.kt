@@ -271,17 +271,18 @@ fun LoginScreen() {
                 Button(
                     onClick = {
                         if (!showGmailField) {
-                            loginToServer(username, password) { success ->
-                                if (success) {
-                                    // 登入成功 切換到下個頁面
-                                    loginSuccess = true
-                                    clickButtonToChat(context, username, password)
-                                } else {
-                                    // 登入失敗 顯示Login failed
-                                    loginSuccess = false
-//                                    Log.e("Login", "Login failed")
-                                }
-                            }
+//                            loginToServer(username, password) { success ->
+//                                if (success) {
+//                                    // 登入成功 切換到下個頁面
+//                                    loginSuccess = true
+//                                    clickButtonToChat(context, username, password)
+//                                } else {
+//                                    // 登入失敗 顯示Login failed
+//                                    loginSuccess = false
+////                                    Log.e("Login", "Login failed")
+//                                }
+//                            }
+                            clickButtonToChat(context, username, password)
                         } else {
                             // 註冊
                         }

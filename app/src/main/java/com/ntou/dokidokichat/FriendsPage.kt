@@ -1,57 +1,44 @@
 package com.ntou.dokidokichat
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 
 class FriendsPage : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val UserName = intent.getStringExtra( MainActivity.KEY_USER_NAME )
-            val PassWord = intent.getStringExtra( MainActivity.KEY_PASSWORD )
+            val UserName = intent.getStringExtra(MainActivity.KEY_USER_NAME)
+            val PassWord = intent.getStringExtra(MainActivity.KEY_PASSWORD)
 
-            ShowUserChatScreen()
+            ShowUserChatScreen(UserName)
         }
     }
 }
 
-
 @Composable
-fun ShowUserChatScreen() {
+fun ShowUserChatScreen(UserName: String?) {
     val selectedTab = remember { mutableStateOf(Tab.Profile) }
 
     Surface(
@@ -62,15 +49,11 @@ fun ShowUserChatScreen() {
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Top
         ) {
-            Spacer(modifier = Modifier.weight(1f))
-
             when (selectedTab.value) {
-                Tab.Profile -> UserProfileScreen(selectedTab)
-                Tab.ChatList -> ChatListScreen(selectedTab)
-                Tab.SettingList -> SettingListScreen(selectedTab)
+                Tab.Profile -> UserProfileScreen(selectedTab, UserName)
+                Tab.ChatList -> ChatListScreen(selectedTab, UserName)
+                Tab.SettingList -> SettingListScreen(selectedTab, UserName)
             }
-
-            Spacer(modifier = Modifier.weight(1f))
 
             BottomNavigationScreen(selectedTab)
         }
@@ -85,19 +68,96 @@ fun BottomNavigationScreen(selectedTab: MutableState<Tab>) {
     )
 }
 
-
 @Composable
-fun UserProfileScreen(selectedTab: MutableState<Tab>) {
-    Text(
-        text = "User Profile Screen",
+fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
+    val displayName = userName ?: "StarStar415"
+    val friendsList = listOf(
+        "01057132", "01057132", "01057132", "01057132", "01057120", "01057122",
+        "01057122", "01057115", "01057112", "01057124", "star", "starstar",
+        "starstar_0415", "StarStar415"
     )
+    var searchQuery by remember { mutableStateOf(TextFieldValue("")) }
+
+    Surface(
+        color = Color.White,
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Profile Picture
+            Box(
+                modifier = Modifier
+                    .size(100.dp)
+                    .border(2.dp, color = Color(0xFFFFD9EC), CircleShape)
+                    .background(color = Color(0xFFFFD9EC), CircleShape)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Person,
+                    contentDescription = "Profile Picture",
+                    tint = Color.White,
+                    modifier = Modifier
+                        .size(90.dp)
+                        .align(Alignment.Center)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Username
+            Text(
+                text = displayName,
+                fontSize = 25.sp,
+                modifier = Modifier.padding(bottom = 10.dp)
+            )
+
+            // Search Bar
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                BasicTextField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    modifier = Modifier
+                        .weight(1f)
+                        .background(color = Color(0xFFFFD9EC), shape = MaterialTheme.shapes.small)
+                        .padding(8.dp)
+                )
+                IconButton(onClick = { /* Handle search action */ }) {
+                    Icon(Icons.Default.Search, contentDescription = "Search")
+                }
+            }
+
+            // Friends List
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+                    .weight(1f)
+            ) {
+                items(friendsList) { friend ->
+                    Text(text = friend, fontSize = 16.sp, modifier = Modifier.padding(8.dp))
+                }
+            }
+            BottomNavigationScreen(selectedTab)
+        }
+    }
 }
 
 @Composable
-fun ChatListScreen(selectedTab: MutableState<Tab>) {
+fun ChatListScreen(selectedTab: MutableState<Tab>, userName: String?) {
     Surface(
-        color = Color.White ,// Pink background
-        modifier = Modifier.fillMaxWidth()
+        color = Color.White,
+        modifier = Modifier
+            .fillMaxWidth()
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -107,20 +167,23 @@ fun ChatListScreen(selectedTab: MutableState<Tab>) {
 
             Text(
                 text = "Chat List Screen",
+                fontSize = 24.sp,
+                modifier = Modifier.padding(16.dp)
             )
-            Spacer(modifier = Modifier.weight(1f))
 
+            Spacer(modifier = Modifier.weight(1f))
             BottomNavigationScreen(selectedTab)
+
         }
     }
-
 }
 
 @Composable
-fun SettingListScreen(selectedTab: MutableState<Tab>) {
+fun SettingListScreen(selectedTab: MutableState<Tab>, userName: String?) {
     Surface(
-        color = Color.White ,// Pink background
-        modifier = Modifier.fillMaxWidth()
+        color = Color.White,
+        modifier = Modifier
+            .fillMaxWidth()
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -130,14 +193,16 @@ fun SettingListScreen(selectedTab: MutableState<Tab>) {
 
             Text(
                 text = "Setting List Screen",
+                fontSize = 24.sp,
+                modifier = Modifier.padding(16.dp)
             )
-            Spacer(modifier = Modifier.weight(1f))
 
+            Spacer(modifier = Modifier.weight(1f))
             BottomNavigationScreen(selectedTab)
         }
     }
-
 }
+
 @Composable
 fun BottomNavigation(
     selectedTab: Tab,
@@ -150,7 +215,6 @@ fun BottomNavigation(
             .background(color = Color(0xFFF48FB1)),
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically,
-
     ) {
         BottomNavigationItem(
             icon = Icons.Default.Person,
