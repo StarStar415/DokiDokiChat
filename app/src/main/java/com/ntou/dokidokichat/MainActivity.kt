@@ -372,7 +372,7 @@ fun loginToServer(username: String, password: String, onResult: (Boolean) -> Uni
                     onResult(false) // 登入失败，回傳 false
                 }
             } catch (e: JSONException) {
-                
+
                 Log.e("Login", "Failed to parse JSON: ${e.message}")
                 onResult(false)
             }
