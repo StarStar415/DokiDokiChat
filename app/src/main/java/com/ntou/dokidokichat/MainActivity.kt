@@ -54,6 +54,7 @@ import okhttp3.*
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
+import java.security.MessageDigest
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -266,7 +267,9 @@ fun LoginScreen(db: FirebaseFirestore) {
                 Button(
                     onClick = {
                         if (!showGmailField) {
-                            db.collection("user").whereEqualTo("username", username)
+                            db.collection("user")
+                                .whereEqualTo("username", username)
+                                .whereEqualTo("password", hashPassword(password))
                                 .get().addOnCompleteListener {task ->
                                     if (task.isSuccessful && task.result != null && task.result
                                             .documents
@@ -279,22 +282,10 @@ fun LoginScreen(db: FirebaseFirestore) {
                                         Log.e("Login", "Login failed")
                                     }
                                 }
-//                            loginToServer(username, password) { success ->
-//                                if (success) {
-//                                    // 登入成功 切換到下個頁面
-//                                    loginSuccess = true
-//                                    clickButtonToChat(context, username, password)
-//                                } else {
-//                                    // 登入失敗 顯示Login failed
-//                                    loginSuccess = false
-//                                    Log.e("Login", "Login failed")
-//                                }
-//                            }
-//                            clickButtonToChat(context, username, password)
                         } else {
-                            db.collection("user").add(User("","01057132@email.ntou.edu.tw",
-                                emptyList(),false,"starstar","01057132","zjPjbMzB7uR3AjBcgh2C",
-                                "starstar"))
+                            db.collection("user").add(User("",gmail,
+                                emptyList(),false,username, hashPassword(password),"zjPjbMzB7uR3AjBcgh234",
+                                username))
                                 .addOnSuccessListener { documentReference ->
                                     Log.d("signup", "success")
                                 }
@@ -340,7 +331,12 @@ fun LoginScreen(db: FirebaseFirestore) {
     }
 }
 
-
+fun hashPassword(password: String): String {
+    val bytes = password.toByteArray()
+    val md = MessageDigest.getInstance("SHA-256")
+    val digest = md.digest(bytes)
+    return digest.fold("", { str, it -> str + "%02x".format(it) })
+}
 
 
 fun clickButtonToChat(context: Context, username: String, password: String) {
@@ -351,48 +347,4 @@ fun clickButtonToChat(context: Context, username: String, password: String) {
     intent.putExtra(MainActivity.KEY_PASSWORD, password)
 
     context.startActivity(intent)
-}
-
-fun loginToServer(username: String, password: String, onResult: (Boolean) -> Unit) {
-    // 登入請求
-    val requestBody = FormBody.Builder()
-        .add("username", username)
-        .add("password", password)
-        .build()
-
-    val request = Request.Builder()
-        .url(MainActivity.Constants.LoginAPI.URL)
-        .post(requestBody)
-        .build()
-
-    val client = OkHttpClient()
-    client.newCall(request).enqueue(object : Callback {
-        override fun onFailure(call: Call, e: IOException) {
-            // 登入失敗回傳 false
-            Log.e("Login", "Failed to login: ${e.message}")
-            onResult(false)
-        }
-
-        override fun onResponse(call: Call, response: Response) {
-            val responseBody = response.peekBody(Long.MAX_VALUE) // Read the entire body into memory as a string
-            val responseData = responseBody.string()
-
-
-            try {
-                val jsonResponse = JSONObject(responseData)
-                val success = jsonResponse.getBoolean("success")
-
-                // 根据服务器返回的结果调用相应的回调函数
-                if (success) {
-                    onResult(true) // 登入成功，回傳 true
-                } else {
-                    onResult(false) // 登入失败，回傳 false
-                }
-            } catch (e: JSONException) {
-
-                Log.e("Login", "Failed to parse JSON: ${e.message}")
-                onResult(false)
-            }
-        }
-    })
 }
