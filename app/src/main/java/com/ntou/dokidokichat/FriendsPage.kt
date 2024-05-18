@@ -282,7 +282,6 @@ fun ChatListScreen(selectedTab: MutableState<Tab>, userName: String?) {
                 modifier = Modifier
                     .padding(16.dp)
                     .align(Alignment.CenterHorizontally)
-                    .background(color = Color(0xFFFFD9EC))
             )
 
             // Friends list
