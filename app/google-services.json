@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "210423591666",
+    "project_id": "dokidokichat-4cd64",
+    "storage_bucket": "dokidokichat-4cd64.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:210423591666:android:b003d1482859a012df966b",
+        "android_client_info": {
+          "package_name": "com.ntou.dokidokichat"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAdG15R_drEnPsST9GVKNdxPWdvNwg4JOE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
