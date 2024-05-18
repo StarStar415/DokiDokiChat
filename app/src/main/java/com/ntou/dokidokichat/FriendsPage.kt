@@ -1,5 +1,7 @@
 package com.ntou.dokidokichat
 
+import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -7,6 +9,7 @@ import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicTextField
@@ -27,9 +30,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.ui.platform.LocalContext
 import java.time.format.TextStyle
 
 class FriendsPage : ComponentActivity() {
+
+    companion object {
+        val FRIEND_NAME: String = "FRIEND_NAME"
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -257,6 +265,7 @@ fun ChatListScreen(selectedTab: MutableState<Tab>, userName: String?) {
     val friendsList = listOf(
         "Alice", "Bob", "Charlie", "David", "Eve", "Frank", "Grace", "Hannah"
     )
+    var context = LocalContext.current
 
     Surface(
         color = Color.White,
@@ -285,7 +294,10 @@ fun ChatListScreen(selectedTab: MutableState<Tab>, userName: String?) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 8.dp),
+                            .padding(vertical = 8.dp)
+                            .clickable {
+                                clickButtonToChat(context, friend)
+                            },
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Box(
@@ -317,6 +329,14 @@ fun ChatListScreen(selectedTab: MutableState<Tab>, userName: String?) {
     }
 }
 
+fun clickButtonToChat(context: Context, friendName: String) {
+    val intent = Intent()
+    intent.setClassName(context,
+        "com.ntou.dokidokichat.ChatPage")
+    intent.putExtra(FriendsPage.FRIEND_NAME, friendName)
+
+    context.startActivity(intent)
+}
 
 @Composable
 fun SettingListScreen(selectedTab: MutableState<Tab>, userName: String?) {
