@@ -254,28 +254,69 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
 
 @Composable
 fun ChatListScreen(selectedTab: MutableState<Tab>, userName: String?) {
+    val friendsList = listOf(
+        "Alice", "Bob", "Charlie", "David", "Eve", "Frank", "Grace", "Hannah"
+    )
+
     Surface(
         color = Color.White,
-        modifier = Modifier
-            .fillMaxWidth()
+        modifier = Modifier.fillMaxSize()
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Top
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
-            Spacer(modifier = Modifier.weight(1f))
-
+            // Top "Chats" text
             Text(
-                text = "Chat List Screen",
+                text = "Chats",
                 fontSize = 24.sp,
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier
+                    .padding(16.dp)
+                    .align(Alignment.CenterHorizontally)
+                    .background(color = Color(0xFFFFD9EC))
             )
 
-            Spacer(modifier = Modifier.weight(1f))
+            // Friends list
+            LazyColumn(
+                modifier = Modifier.weight(1f),
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+            ) {
+                items(friendsList) { friend ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(60.dp)
+                                .background(color = Color(0xFFFFD9EC), shape = CircleShape)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Person,
+                                contentDescription = "Profile Picture",
+                                tint = Color.White,
+                                modifier = Modifier
+                                    .size(24.dp)
+                                    .align(Alignment.Center)
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Text(
+                            text = friend,
+                            fontSize = 18.sp
+                        )
+                    }
+                }
+            }
+
+            // Bottom navigation
             BottomNavigationScreen(selectedTab)
         }
     }
 }
+
 
 @Composable
 fun SettingListScreen(selectedTab: MutableState<Tab>, userName: String?) {
