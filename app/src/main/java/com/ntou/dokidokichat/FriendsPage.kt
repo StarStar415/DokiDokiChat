@@ -83,6 +83,9 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
     )
     var searchQuery by remember { mutableStateOf(TextFieldValue("")) }
     var filteredFriendsList by remember { mutableStateOf(friendsList) }
+    var showDialog by remember { mutableStateOf(false) }
+    var addFriendQuery by remember { mutableStateOf(TextFieldValue("")) }
+    var addFriendResult by remember { mutableStateOf<String?>(null) }
 
     val onSearch: () -> Unit = {
         val query = searchQuery.text
@@ -91,6 +94,11 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
         } else {
             friendsList.filter { it.contains(query, ignoreCase = true) }
         }
+    }
+
+    val onAddFriendSearch: () -> Unit = {
+        val query = addFriendQuery.text
+        addFriendResult = friendsList.find { it == query }
     }
 
     Surface(
@@ -175,7 +183,7 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
             }
             // Add Friend Button
             FloatingActionButton(
-                onClick = { /* Handle add friend action */ },
+                onClick = { showDialog = true },
                 containerColor = Color(0xFFFCC2DF),
                 contentColor = Color.White,
                 modifier = Modifier
@@ -185,9 +193,62 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
             ) {
                 Icon(Icons.Default.Add, contentDescription = "Add Friend")
             }
+
+            if (showDialog) {
+                AlertDialog(
+                    onDismissRequest = { showDialog = false },
+                    title = { Text("Add Friend") },
+                    text = {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                BasicTextField(
+                                    value = addFriendQuery,
+                                    onValueChange = { addFriendQuery = it },
+                                    textStyle = androidx.compose.ui.text.TextStyle(fontSize = 20.sp),
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .background(
+                                            color = Color(0xFFFFD9EC),
+                                            shape = MaterialTheme.shapes.small
+                                        )
+                                        .padding(8.dp)
+                                )
+                                IconButton(onClick = onAddFriendSearch) {
+                                    Icon(Icons.Default.Search, contentDescription = "Search")
+                                }
+                            }
+
+                            addFriendResult?.let {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Text(
+                                        text = it,
+                                        fontSize = 20.sp,
+                                        modifier = Modifier.padding(top = 16.dp)
+                                    )
+                                    Button(
+                                        onClick = { /* Handle add friend action */ },
+                                        modifier = Modifier.padding(top = 8.dp)
+                                    ) {
+                                        Text("加入好友")
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    confirmButton = {
+                        TextButton(onClick = { showDialog = false }) {
+                            Text("close")
+                        }
+                    }
+                )
+            }
         }
     }
 }
+
 
 
 
