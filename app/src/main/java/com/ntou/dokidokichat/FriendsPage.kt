@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
@@ -32,6 +34,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.toObject
+import com.google.firebase.firestore.toObjects
+import com.ntou.dokidokichat.data.model.Friend
+import com.ntou.dokidokichat.data.model.User
 import java.time.format.TextStyle
 
 class FriendsPage : ComponentActivity() {
@@ -85,30 +92,53 @@ fun BottomNavigationScreen(selectedTab: MutableState<Tab>) {
 @Composable
 fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
     val userName = userName ?: "StarStar415"
-    val friendsList = listOf(
-        "01057132", "01057132", "01057132", "01057132", "01057120", "01057122",
-        "01057122", "01057115", "01057112", "01057124", "star", "starstar",
-        "starstar_0415", "StarStar415"
-    )
+    val db = FirebaseFirestore.getInstance()
+    var friendsList: List<Friend> = emptyList()
     var searchQuery by remember { mutableStateOf(TextFieldValue("")) }
     var filteredFriendsList by remember { mutableStateOf(friendsList) }
     var showDialog by remember { mutableStateOf(false) }
     var addFriendQuery by remember { mutableStateOf(TextFieldValue("")) }
-    var addFriendResult by remember { mutableStateOf<String?>(null) }
+    var addFriendResult by remember { mutableStateOf<User?>(null) }
+    val context = LocalContext.current
 
     val onSearch: () -> Unit = {
         val query = searchQuery.text
         filteredFriendsList = if (query.isEmpty()) {
             friendsList
         } else {
-            friendsList.filter { it.contains(query, ignoreCase = true) }
+            friendsList.filter { it.nickname.contains(query, ignoreCase = true) }
         }
     }
-
+    val addFriendRefresh: () -> Unit = {
+        db.collection("user").whereEqualTo("username", userName).get()
+            .addOnCompleteListener() {task->
+                friendsList = if(task.isSuccessful) {
+                    task.result.documents[0].toObject(User::class.java)?.friends ?: emptyList()
+                } else {
+                    emptyList()
+                }
+                onSearch()
+            }
+    }
     val onAddFriendSearch: () -> Unit = {
         val query = addFriendQuery.text
-        addFriendResult = friendsList.find { it == query }
+        db.collection("user").whereEqualTo("userID", query).get()
+            .addOnCompleteListener() {task->
+                addFriendResult = if(task.isSuccessful) {
+                    task.result.documents[0].toObject(User::class.java)
+                } else {
+                    null
+                }
+                if (addFriendResult == null) {
+                    Toast.makeText(context, "未找到該使用者", Toast.LENGTH_SHORT).show()
+                }
+                else if (addFriendResult!!.username == userName) {
+                    Toast.makeText(context, "應該不會可憐到只能加自己好友吧", Toast.LENGTH_LONG).show()
+                    addFriendResult = null
+                }
+            }
     }
+    addFriendRefresh()
 
     Surface(
         color = Color.White,
@@ -168,7 +198,10 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
                         modifier = Modifier
                             .weight(1f)
                             .height(45.dp)
-                            .background(color = Color(0xFFFFD9EC), shape = MaterialTheme.shapes.small)
+                            .background(
+                                color = Color(0xFFFFD9EC),
+                                shape = MaterialTheme.shapes.small
+                            )
                             .padding(8.dp)
                     )
                     IconButton(onClick = onSearch) {
@@ -184,7 +217,7 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
                         .weight(1f)
                 ) {
                     items(filteredFriendsList) { friend ->
-                        Text(text = friend, fontSize = 25.sp, modifier = Modifier.padding(8.dp))
+                        Text(text = friend.nickname, fontSize = 25.sp, modifier = Modifier.padding(8.dp))
                     }
                 }
                 // Bottom Navigation
@@ -237,12 +270,32 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
                             addFriendResult?.let {
                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                     Text(
-                                        text = it,
+                                        text = it.name,
                                         fontSize = 20.sp,
                                         modifier = Modifier.padding(top = 16.dp)
                                     )
                                     Button(
-                                        onClick = { /* Handle add friend action */ },
+                                        onClick = {
+                                            db.collection("user")
+                                                .whereEqualTo("username", userName)
+                                                .get()
+                                                .addOnCompleteListener(){task->
+                                                    val res = task.result.documents[0].toObject(User::class.java)
+                                                    res!!.friends += Friend(0,it.name,it.userID,it.username)
+                                                    val userRef = db.collection("user").document(task.result.documents[0].id)
+                                                    userRef.update("friends", res!!.friends)
+                                                        .addOnSuccessListener {
+                                                            Toast.makeText(context, "加入成功", Toast.LENGTH_SHORT).show()
+                                                            addFriendRefresh()
+                                                        }
+                                                        .addOnFailureListener { e ->
+                                                            Log.e("error", "Error adding friend", e)
+                                                        }
+                                                }
+                                            showDialog = false
+                                            addFriendQuery = TextFieldValue("")
+                                            addFriendResult = null
+                                        },
                                         modifier = Modifier.padding(top = 8.dp)
                                     ) {
                                         Text("加入好友")
@@ -261,8 +314,6 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
         }
     }
 }
-
-
 
 
 @Composable
