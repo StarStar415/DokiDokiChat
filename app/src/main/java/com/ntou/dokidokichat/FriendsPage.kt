@@ -137,6 +137,10 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
                     Toast.makeText(context, "應該不會可憐到只能加自己好友吧", Toast.LENGTH_LONG).show()
                     addFriendResult = null
                 }
+                else if (friendsList.any { it.username == addFriendResult!!.username }){
+                    Toast.makeText(context, "你不是已經有他的好友了嗎", Toast.LENGTH_LONG).show()
+                    addFriendResult = null
+                }
             }
     }
     addFriendRefresh()
