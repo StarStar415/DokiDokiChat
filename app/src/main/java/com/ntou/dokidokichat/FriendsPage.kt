@@ -371,18 +371,17 @@ fun SettingListScreen(selectedTab: MutableState<Tab>, userName: String?) {
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 val menuItems = listOf(
-                    "個人檔案",
-                    "修改密碼",
-                    "修改電子郵件",
-                    "個性簽名",
-                    "設定 ID",
-                    "加入好友",
-                    "好友",
-                    "每日運勢",
-                    "登出",
-                    "test",
-                    "test"
+                    "Profile",
+                    "Change Password",
+                    "Change Email",
+                    "Edit Profile",
+                    "Set ID",
+                    "Add Friend",
+                    "Friends",
+                    "Daily Horoscope",
+                    "Log Out"
                 )
+
 
                 items(menuItems) { item ->
                     Box(
@@ -390,7 +389,7 @@ fun SettingListScreen(selectedTab: MutableState<Tab>, userName: String?) {
                             .fillMaxWidth()
                             .clickable {
                                 selectedMenuItem = item
-                                handleMenuItemClick(item)
+                                handleMenuItemClick(item) { selectedTab.value = it }
                             }
                     ) {
                         Row(
@@ -427,29 +426,32 @@ fun SettingListScreen(selectedTab: MutableState<Tab>, userName: String?) {
     }
 }
 
-fun handleMenuItemClick(item: String) {
-    // setting頁面切換
+fun handleMenuItemClick(item: String, onTabSelected: (Tab) -> Unit) {
     when (item) {
-        "個人檔案" -> {
-            // Handle profile
+        "Profile" -> {
+            onTabSelected(Tab.Profile)
         }
-        "修改密碼" -> {
-            // Handle password change
+        "Change Password" -> {
+
         }
-        "設定 ID" -> {
-            // Handle setting ID
+        "Edit Profile" -> {
+
         }
-        "加入好友" -> {
-            // Handle adding friend
+        "Set ID" -> {
+
         }
-        "好友" -> {
-            // Handle friends list
+        "Add Friend" -> {
+
         }
-        "登出" -> {
-            // Handle logout
+        "Friends" -> {
+
+        }
+        "Log Out" -> {
+
         }
     }
 }
+
 
 @Composable
 fun BottomNavigation(
