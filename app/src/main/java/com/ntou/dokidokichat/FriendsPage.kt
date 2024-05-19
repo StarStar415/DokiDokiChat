@@ -324,10 +324,17 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
 
 @Composable
 fun ChatListScreen(selectedTab: MutableState<Tab>, userName: String?) {
-    val friendsList = listOf(
-        "Alice", "Bob", "Charlie", "David", "Eve", "Frank", "Grace", "Hannah","star","starstar415"
-    )
-    var context = LocalContext.current
+    var friendsList: List<Friend> by remember{ mutableStateOf(emptyList())}
+    val db = FirebaseFirestore.getInstance()
+    db.collection("user").whereEqualTo("username", userName).get()
+        .addOnCompleteListener() {task->
+            friendsList = if(task.isSuccessful) {
+                task.result.documents[0].toObject(User::class.java)?.friends ?: emptyList()
+            } else {
+                emptyList()
+            }
+        }
+    val context = LocalContext.current
 
     Surface(
         color = Color.White,
@@ -357,7 +364,7 @@ fun ChatListScreen(selectedTab: MutableState<Tab>, userName: String?) {
                             .fillMaxWidth()
                             .padding(vertical = 8.dp)
                             .clickable {
-                                clickButtonToChat(context, friend)
+                                clickButtonToChat(context, friend.nickname)
                             },
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -377,7 +384,7 @@ fun ChatListScreen(selectedTab: MutableState<Tab>, userName: String?) {
                         }
                         Spacer(modifier = Modifier.width(16.dp))
                         Text(
-                            text = friend,
+                            text = friend.nickname,
                             fontSize = 18.sp
                         )
                     }
