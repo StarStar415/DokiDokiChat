@@ -1,5 +1,6 @@
 package com.ntou.dokidokichat
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -45,14 +46,14 @@ class FriendsPage : ComponentActivity() {
             val UserName = intent.getStringExtra(MainActivity.KEY_USER_NAME)
             val PassWord = intent.getStringExtra(MainActivity.KEY_PASSWORD)
 
-            ShowUserChatScreen(UserName,PassWord)
+            ShowUserChatScreen(this,UserName,PassWord)
         }
     }
 }
 
 // 主畫面 有個人檔案,聊天列表和設定
 @Composable
-fun ShowUserChatScreen(UserName: String?,PassWord: String?) {
+fun ShowUserChatScreen(activity: Activity, UserName: String?, PassWord: String?) {
     val selectedTab = remember { mutableStateOf(Tab.Profile) }
 
     Surface(
@@ -66,7 +67,7 @@ fun ShowUserChatScreen(UserName: String?,PassWord: String?) {
             when (selectedTab.value) {
                 Tab.Profile -> UserProfileScreen(selectedTab, UserName)
                 Tab.ChatList -> ChatListScreen(selectedTab, UserName)
-                Tab.SettingList -> SettingListScreen(selectedTab, UserName)
+                Tab.SettingList -> SettingListScreen(selectedTab, UserName,activity)
             }
             BottomNavigationScreen(selectedTab)
         }
@@ -344,7 +345,8 @@ fun clickButtonToChat(context: Context, friendName: String) {
 }
 
 @Composable
-fun SettingListScreen(selectedTab: MutableState<Tab>, userName: String?) {
+fun SettingListScreen(selectedTab: MutableState<Tab>, userName: String?,activity: Activity) {
+    var logoutDialog by remember { mutableStateOf(false) }
     var selectedMenuItem by remember { mutableStateOf<String?>(null) }
 
     Surface(
@@ -389,7 +391,7 @@ fun SettingListScreen(selectedTab: MutableState<Tab>, userName: String?) {
                             .fillMaxWidth()
                             .clickable {
                                 selectedMenuItem = item
-                                handleMenuItemClick(item) { selectedTab.value = it }
+                                handleMenuItemClick(item, { selectedTab.value = it }, { logoutDialog = true })
                             }
                     ) {
                         Row(
@@ -422,11 +424,32 @@ fun SettingListScreen(selectedTab: MutableState<Tab>, userName: String?) {
                 )
             }
             BottomNavigationScreen(selectedTab)
+
+            if (logoutDialog) {
+                AlertDialog(
+                    onDismissRequest = { logoutDialog = false },
+                    title = { Text("Log Out") },
+                    text = { Text("Are you sure you want to log out?") },
+                    confirmButton = {
+                        Button(onClick = {
+                            logoutDialog = false
+                            activity.finish()
+                        }) {
+                            Text("Yes")
+                        }
+                    },
+                    dismissButton = {
+                        Button(onClick = { logoutDialog = false }) {
+                            Text("No")
+                        }
+                    }
+                )
+            }
         }
     }
 }
 
-fun handleMenuItemClick(item: String, onTabSelected: (Tab) -> Unit) {
+fun handleMenuItemClick(item: String, onTabSelected: (Tab) -> Unit, onLogout: () -> Unit) {
     when (item) {
         "Profile" -> {
             onTabSelected(Tab.Profile)
@@ -447,7 +470,7 @@ fun handleMenuItemClick(item: String, onTabSelected: (Tab) -> Unit) {
 
         }
         "Log Out" -> {
-
+            onLogout()
         }
     }
 }
