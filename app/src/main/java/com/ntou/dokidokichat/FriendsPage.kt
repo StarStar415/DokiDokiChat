@@ -197,13 +197,14 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
                 contentColor = Color.White,
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
-                    .padding(bottom = 100.dp, end = 30.dp),
+                    .padding(bottom = 100.dp, end = 30.dp)
+                    .size(75.dp),
                 shape = CircleShape,
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.add),
                     contentDescription = "Add Friend",
-                    modifier = Modifier.size(35.dp)
+                    modifier = Modifier.size(50.dp)
                 )
             }
 
@@ -268,7 +269,7 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
 @Composable
 fun ChatListScreen(selectedTab: MutableState<Tab>, userName: String?) {
     val friendsList = listOf(
-        "Alice", "Bob", "Charlie", "David", "Eve", "Frank", "Grace", "Hannah"
+        "Alice", "Bob", "Charlie", "David", "Eve", "Frank", "Grace", "Hannah","star","starstar415"
     )
     var context = LocalContext.current
 
@@ -283,7 +284,7 @@ fun ChatListScreen(selectedTab: MutableState<Tab>, userName: String?) {
             // Top "Chats" text
             Text(
                 text = "Chats",
-                fontSize = 24.sp,
+                fontSize = 30.sp,
                 modifier = Modifier
                     .padding(16.dp)
                     .align(Alignment.CenterHorizontally)
@@ -344,25 +345,108 @@ fun clickButtonToChat(context: Context, friendName: String) {
 
 @Composable
 fun SettingListScreen(selectedTab: MutableState<Tab>, userName: String?) {
+    var selectedMenuItem by remember { mutableStateOf<String?>(null) }
+
     Surface(
         color = Color.White,
-        modifier = Modifier
-            .fillMaxWidth()
+        modifier = Modifier.fillMaxSize()
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Top
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
-            Spacer(modifier = Modifier.weight(1f))
+
 
             Text(
-                text = "Setting List Screen",
-                fontSize = 24.sp,
-                modifier = Modifier.padding(16.dp)
+                text = "Setting",
+                fontSize = 30.sp,
+                modifier = Modifier
+                    .padding(16.dp)
+                    .align(Alignment.CenterHorizontally)
             )
 
-            Spacer(modifier = Modifier.weight(1f))
+            LazyColumn(
+                modifier = Modifier
+                    .weight(1f),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                val menuItems = listOf(
+                    "個人檔案",
+                    "修改密碼",
+                    "修改電子郵件",
+                    "個性簽名",
+                    "設定 ID",
+                    "加入好友",
+                    "好友",
+                    "每日運勢",
+                    "登出",
+                    "test",
+                    "test"
+                )
+
+                items(menuItems) { item ->
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                selectedMenuItem = item
+                                handleMenuItemClick(item)
+                            }
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                        ) {
+                            Text(
+                                text = item,
+                                fontSize = 25.sp,
+                                modifier = Modifier.weight(1f)
+                            )
+                            Text(
+                                text = ">",
+                                fontSize = 25.sp
+                            )
+                        }
+                    }
+                }
+
+            }
+            // debug 測試現在選的東西
+            selectedMenuItem?.let { menuItem ->
+                Text(
+                    text = "Selected: $menuItem",
+                    fontSize = 16.sp,
+                    color = Color.Gray,
+                    modifier = Modifier.padding(16.dp)
+                )
+            }
             BottomNavigationScreen(selectedTab)
+        }
+    }
+}
+
+fun handleMenuItemClick(item: String) {
+    // setting頁面切換
+    when (item) {
+        "個人檔案" -> {
+            // Handle profile
+        }
+        "修改密碼" -> {
+            // Handle password change
+        }
+        "設定 ID" -> {
+            // Handle setting ID
+        }
+        "加入好友" -> {
+            // Handle adding friend
+        }
+        "好友" -> {
+            // Handle friends list
+        }
+        "登出" -> {
+            // Handle logout
         }
     }
 }
