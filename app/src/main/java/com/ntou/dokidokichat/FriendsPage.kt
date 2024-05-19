@@ -1,5 +1,6 @@
 package com.ntou.dokidokichat
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -52,14 +53,14 @@ class FriendsPage : ComponentActivity() {
             val UserName = intent.getStringExtra(MainActivity.KEY_USER_NAME)
             val PassWord = intent.getStringExtra(MainActivity.KEY_PASSWORD)
 
-            ShowUserChatScreen(UserName,PassWord)
+            ShowUserChatScreen(this,UserName,PassWord)
         }
     }
 }
 
 // 主畫面 有個人檔案,聊天列表和設定
 @Composable
-fun ShowUserChatScreen(UserName: String?,PassWord: String?) {
+fun ShowUserChatScreen(activity: Activity, UserName: String?, PassWord: String?) {
     val selectedTab = remember { mutableStateOf(Tab.Profile) }
 
     Surface(
@@ -73,7 +74,7 @@ fun ShowUserChatScreen(UserName: String?,PassWord: String?) {
             when (selectedTab.value) {
                 Tab.Profile -> UserProfileScreen(selectedTab, UserName)
                 Tab.ChatList -> ChatListScreen(selectedTab, UserName)
-                Tab.SettingList -> SettingListScreen(selectedTab, UserName)
+                Tab.SettingList -> SettingListScreen(selectedTab, UserName,activity)
             }
             BottomNavigationScreen(selectedTab)
         }
@@ -230,13 +231,14 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
                 contentColor = Color.White,
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
-                    .padding(bottom = 100.dp, end = 30.dp),
+                    .padding(bottom = 100.dp, end = 30.dp)
+                    .size(75.dp),
                 shape = CircleShape,
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.add),
                     contentDescription = "Add Friend",
-                    modifier = Modifier.size(35.dp)
+                    modifier = Modifier.size(50.dp)
                 )
             }
 
@@ -319,7 +321,7 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
 @Composable
 fun ChatListScreen(selectedTab: MutableState<Tab>, userName: String?) {
     val friendsList = listOf(
-        "Alice", "Bob", "Charlie", "David", "Eve", "Frank", "Grace", "Hannah"
+        "Alice", "Bob", "Charlie", "David", "Eve", "Frank", "Grace", "Hannah","star","starstar415"
     )
     var context = LocalContext.current
 
@@ -334,7 +336,7 @@ fun ChatListScreen(selectedTab: MutableState<Tab>, userName: String?) {
             // Top "Chats" text
             Text(
                 text = "Chats",
-                fontSize = 24.sp,
+                fontSize = 30.sp,
                 modifier = Modifier
                     .padding(16.dp)
                     .align(Alignment.CenterHorizontally)
@@ -394,29 +396,146 @@ fun clickButtonToChat(context: Context, friendName: String) {
 }
 
 @Composable
-fun SettingListScreen(selectedTab: MutableState<Tab>, userName: String?) {
+fun SettingListScreen(selectedTab: MutableState<Tab>, userName: String?,activity: Activity) {
+    var logoutDialog by remember { mutableStateOf(false) }
+    var selectedMenuItem by remember { mutableStateOf<String?>(null) }
+
     Surface(
         color = Color.White,
-        modifier = Modifier
-            .fillMaxWidth()
+        modifier = Modifier.fillMaxSize()
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Top
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
-            Spacer(modifier = Modifier.weight(1f))
+
 
             Text(
-                text = "Setting List Screen",
-                fontSize = 24.sp,
-                modifier = Modifier.padding(16.dp)
+                text = "Setting",
+                fontSize = 30.sp,
+                modifier = Modifier
+                    .padding(16.dp)
+                    .align(Alignment.CenterHorizontally)
             )
 
-            Spacer(modifier = Modifier.weight(1f))
+            LazyColumn(
+                modifier = Modifier
+                    .weight(1f),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                val menuItems = listOf(
+                    "Profile",
+                    "Change Password",
+                    "Change Email",
+                    "Edit Profile",
+                    "Set ID",
+                    "Add Friend",
+                    "Friends",
+                    "Daily Horoscope",
+                    "Log Out"
+                )
+
+
+                items(menuItems) { item ->
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                selectedMenuItem = item
+                                handleMenuItemClick(item, { selectedTab.value = it }, { logoutDialog = true })
+                            }
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                        ) {
+                            Text(
+                                text = item,
+                                fontSize = 25.sp,
+                                modifier = Modifier.weight(1f)
+                            )
+                            Text(
+                                text = ">",
+                                fontSize = 25.sp
+                            )
+                        }
+                    }
+                }
+
+            }
+            // debug 測試現在選的東西
+            selectedMenuItem?.let { menuItem ->
+                Text(
+                    text = "Selected: $menuItem",
+                    fontSize = 16.sp,
+                    color = Color.Gray,
+                    modifier = Modifier.padding(16.dp)
+                )
+            }
             BottomNavigationScreen(selectedTab)
+
+            if (logoutDialog) {
+                AlertDialog(
+                    onDismissRequest = { logoutDialog = false },
+                    title = { Text("Log Out") },
+                    text = { Text("Are you sure you want to log out?") },
+                    confirmButton = {
+                        Button(
+                            onClick = {
+                                logoutDialog = false
+                                activity.finish()
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF48FB1)),
+                            shape = MaterialTheme.shapes.medium,
+                        ) {
+                            Text("Yes", color = Color.White)
+                        }
+                    },
+                    dismissButton = {
+                        Button(
+                            onClick = { logoutDialog = false },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color.Gray),
+                            shape = MaterialTheme.shapes.medium,
+
+                        ) {
+                            Text("No", color = Color.White)
+                        }
+                    }
+                )
+            }
+
         }
     }
 }
+
+fun handleMenuItemClick(item: String, onTabSelected: (Tab) -> Unit, onLogout: () -> Unit) {
+    when (item) {
+        "Profile" -> {
+            onTabSelected(Tab.Profile)
+        }
+        "Change Password" -> {
+
+        }
+        "Edit Profile" -> {
+
+        }
+        "Set ID" -> {
+
+        }
+        "Add Friend" -> {
+
+        }
+        "Friends" -> {
+
+        }
+        "Log Out" -> {
+            onLogout()
+        }
+    }
+}
+
 
 @Composable
 fun BottomNavigation(

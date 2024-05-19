@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.paddingFromBaseline
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -80,8 +81,10 @@ fun LoginScreen(db: FirebaseFirestore) {
     var gmail by remember { mutableStateOf("01057132@email.ntou.edu.tw") }
     var showGmailField by remember { mutableStateOf(false) }
     var loginSuccess by remember { mutableStateOf(true) }
+    var registerSuccess by remember { mutableStateOf(false) }
     var usernameTaken by remember { mutableStateOf(false) }
     var gmailTaken by remember { mutableStateOf(false) }
+    var isLoading by remember { mutableStateOf(false) }
 
     var passwordVisibility by remember { mutableStateOf(false) }
 
@@ -137,7 +140,8 @@ fun LoginScreen(db: FirebaseFirestore) {
 
                     modifier = Modifier
                         .padding(bottom = 8.dp)
-                        .fillMaxWidth()
+                        .fillMaxWidth(),
+                    singleLine = true
                 )
                 // 信箱欄位
                 if (showGmailField) {
@@ -153,7 +157,8 @@ fun LoginScreen(db: FirebaseFirestore) {
                         },
                         modifier = Modifier
                             .padding(bottom = 8.dp)
-                            .fillMaxWidth()
+                            .fillMaxWidth(),
+                        singleLine = true
                     )
                 }
 
@@ -175,7 +180,8 @@ fun LoginScreen(db: FirebaseFirestore) {
                         TextButton(onClick = { passwordVisibility = !passwordVisibility }) {
                             Text(if (passwordVisibility) "Hide" else "Show")
                         }
-                    }
+                    },
+                    singleLine = true
                 )
 
                 // 登入失敗提示
@@ -201,14 +207,23 @@ fun LoginScreen(db: FirebaseFirestore) {
                         color = Color.Red
                     )
                 }
+
+                if(registerSuccess){
+                    Text(
+                        "Registration was successful",
+                        color = Color.Red
+                    )
+                }
                 // 登入|註冊按鈕
                 Button(
                     onClick = {
+                        isLoading = true
                         if (!showGmailField) {
                             db.collection("user")
                                 .whereEqualTo("username", username)
                                 .whereEqualTo("password", hashPassword(password))
                                 .get().addOnCompleteListener {task ->
+                                    isLoading = false
                                     if (task.isSuccessful && task.result != null && task.result
                                             .documents
                                             .size > 0
@@ -221,9 +236,12 @@ fun LoginScreen(db: FirebaseFirestore) {
                                     }
                                 }
                         } else {
-                            registerUser(gmail, username, password) { isUsernameTaken, isGmailTaken ->
+                            isLoading = true
+                            registerUser(gmail, username, password,isLoading) { isUsernameTaken, isGmailTaken, isRegisterSuccess, isLoadingFalse->
                                 usernameTaken = isUsernameTaken
                                 gmailTaken = isGmailTaken
+                                registerSuccess = isRegisterSuccess
+                                isLoading = isLoadingFalse
                             }
                         }
 
@@ -234,12 +252,18 @@ fun LoginScreen(db: FirebaseFirestore) {
                     modifier = Modifier
                         .fillMaxWidth()
                 ) {
-                    Text(
-                        if (showGmailField) "Sign up" else "Login",
-                        color = Color.White
-                    )
+                    if (isLoading) {
+                        CircularProgressIndicator(
+                            color = Color.White,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    } else {
+                        Text(
+                            if (showGmailField) "Sign up" else "Login",
+                            color = Color.White
+                        )
+                    }
                 }
-
 
 
                 Row {
@@ -250,6 +274,7 @@ fun LoginScreen(db: FirebaseFirestore) {
                             loginSuccess = true
                             gmailTaken = false
                             usernameTaken = false
+                            registerSuccess = false
                         },
                         modifier = Modifier.padding(top = 8.dp) // 添加上方的外邊距
                     ) {
@@ -317,17 +342,18 @@ fun registerUser(
     gmail: String,
     username: String,
     password: String,
-    onResult: (Boolean, Boolean) -> Unit
+    isLoading: Boolean,
+    onResult: (Boolean, Boolean,Boolean,Boolean) -> Unit
 ) {
     isUsernameTaken(username) { isUsernameTaken ->
         if (isUsernameTaken) {
-            onResult(true, false)
+            onResult(true, false, false, false)
             return@isUsernameTaken
         }
 
         isGmailTaken(gmail) { isGmailTaken ->
             if (isGmailTaken) {
-                onResult(false, true)
+                onResult(false, true, false, false)
                 return@isGmailTaken
             }
 
@@ -345,11 +371,11 @@ fun registerUser(
             ))
                 .addOnSuccessListener { documentReference ->
                     Log.d("signup", "Success")
-                    onResult(false, false) // 註冊成功
+                    onResult(false, false, true, false) // 註冊成功
                 }
                 .addOnFailureListener { e ->
                     Log.e("signup", "Fail", e)
-                    onResult(false, false) // 註冊失敗
+                    onResult(false, false, false, false) // 註冊失敗
                 }
         }
     }
