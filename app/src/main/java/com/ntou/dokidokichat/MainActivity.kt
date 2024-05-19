@@ -50,15 +50,10 @@ import androidx.graphics.shapes.RoundedPolygon
 import androidx.graphics.shapes.toPath
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ntou.dokidokichat.data.model.User
-import okhttp3.*
-import org.json.JSONException
-import org.json.JSONObject
-import java.io.IOException
 import java.security.MessageDigest
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
-
 
 class MainActivity : ComponentActivity() {
 
@@ -115,75 +110,7 @@ fun LoginScreen(db: FirebaseFirestore) {
                     .padding(10.dp)
             ){
                 // 畫愛心
-                fun directionVectorPointF(angleRadians: Float) =
-                    PointF(cos(angleRadians), sin(angleRadians))
-                fun Float.toRadians() = this * PI.toFloat() / 180f
-
-                val PointZero = PointF(0f, 0f)
-                fun radialToCartesian(
-                    radius: Float,
-                    angleRadians: Float,
-                    center: PointF = PointZero
-                ) = directionVectorPointF(angleRadians) * radius + center
-                val vertices = remember {
-                    val radius = 1f
-                    val radiusSides = 0.8f
-                    val innerRadius = .1f
-                    floatArrayOf(
-                        radialToCartesian(radiusSides, 0f.toRadians()).x,
-                        radialToCartesian(radiusSides, 0f.toRadians()).y,
-                        radialToCartesian(radius, 90f.toRadians()).x,
-                        radialToCartesian(radius, 90f.toRadians()).y,
-                        radialToCartesian(radiusSides, 180f.toRadians()).x,
-                        radialToCartesian(radiusSides, 180f.toRadians()).y,
-                        radialToCartesian(radius, 250f.toRadians()).x,
-                        radialToCartesian(radius, 250f.toRadians()).y,
-                        radialToCartesian(innerRadius, 270f.toRadians()).x,
-                        radialToCartesian(innerRadius, 270f.toRadians()).y,
-                        radialToCartesian(radius, 290f.toRadians()).x,
-                        radialToCartesian(radius, 290f.toRadians()).y,
-                    )
-                }
-
-                val rounding = remember {
-                    val roundingNormal = 0.6f
-                    val roundingNone = 0f
-                    listOf(
-                        CornerRounding(roundingNormal),
-                        CornerRounding(roundingNone),
-                        CornerRounding(roundingNormal),
-                        CornerRounding(roundingNormal),
-                        CornerRounding(roundingNone),
-                        CornerRounding(roundingNormal),
-                    )
-                }
-
-                val polygon = remember(vertices, rounding) {
-                    RoundedPolygon(
-                        vertices = vertices,
-                        perVertexRounding = rounding
-                    )
-                }
-
-                Box(
-                    modifier = Modifier
-                        .drawWithCache {
-                            val roundedPolygonPath = polygon
-                                .toPath()
-                                .asComposePath()
-                            onDrawBehind {
-                                scale(size.width * 0.5f, size.width * 0.5f) {
-                                    translate(size.width * 0.5f, size.height * 0.5f) {
-                                        drawPath(
-                                            roundedPolygonPath,
-                                            color = Color(0xFFFF79BC)
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                        .size(200.dp)
-                )
+                DokiDokiHeart()
 
                 // 標題
                 Spacer(modifier = Modifier.height(16.dp))
@@ -426,5 +353,78 @@ fun registerUser(
                 }
         }
     }
+}
+
+@Composable
+fun DokiDokiHeart(){
+    fun directionVectorPointF(angleRadians: Float) =
+        PointF(cos(angleRadians), sin(angleRadians))
+    fun Float.toRadians() = this * PI.toFloat() / 180f
+
+    val PointZero = PointF(0f, 0f)
+    fun radialToCartesian(
+        radius: Float,
+        angleRadians: Float,
+        center: PointF = PointZero
+    ) = directionVectorPointF(angleRadians) * radius + center
+    val vertices = remember {
+        val radius = 1f
+        val radiusSides = 0.8f
+        val innerRadius = .1f
+        floatArrayOf(
+            radialToCartesian(radiusSides, 0f.toRadians()).x,
+            radialToCartesian(radiusSides, 0f.toRadians()).y,
+            radialToCartesian(radius, 90f.toRadians()).x,
+            radialToCartesian(radius, 90f.toRadians()).y,
+            radialToCartesian(radiusSides, 180f.toRadians()).x,
+            radialToCartesian(radiusSides, 180f.toRadians()).y,
+            radialToCartesian(radius, 250f.toRadians()).x,
+            radialToCartesian(radius, 250f.toRadians()).y,
+            radialToCartesian(innerRadius, 270f.toRadians()).x,
+            radialToCartesian(innerRadius, 270f.toRadians()).y,
+            radialToCartesian(radius, 290f.toRadians()).x,
+            radialToCartesian(radius, 290f.toRadians()).y,
+        )
+    }
+
+    val rounding = remember {
+        val roundingNormal = 0.6f
+        val roundingNone = 0f
+        listOf(
+            CornerRounding(roundingNormal),
+            CornerRounding(roundingNone),
+            CornerRounding(roundingNormal),
+            CornerRounding(roundingNormal),
+            CornerRounding(roundingNone),
+            CornerRounding(roundingNormal),
+        )
+    }
+
+    val polygon = remember(vertices, rounding) {
+        RoundedPolygon(
+            vertices = vertices,
+            perVertexRounding = rounding
+        )
+    }
+
+    Box(
+        modifier = Modifier
+            .drawWithCache {
+                val roundedPolygonPath = polygon
+                    .toPath()
+                    .asComposePath()
+                onDrawBehind {
+                    scale(size.width * 0.5f, size.width * 0.5f) {
+                        translate(size.width * 0.5f, size.height * 0.5f) {
+                            drawPath(
+                                roundedPolygonPath,
+                                color = Color(0xFFFF79BC)
+                            )
+                        }
+                    }
+                }
+            }
+            .size(200.dp)
+    )
 }
 
