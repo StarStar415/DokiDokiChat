@@ -431,20 +431,30 @@ fun SettingListScreen(selectedTab: MutableState<Tab>, userName: String?,activity
                     title = { Text("Log Out") },
                     text = { Text("Are you sure you want to log out?") },
                     confirmButton = {
-                        Button(onClick = {
-                            logoutDialog = false
-                            activity.finish()
-                        }) {
-                            Text("Yes")
+                        Button(
+                            onClick = {
+                                logoutDialog = false
+                                activity.finish()
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF48FB1)),
+                            shape = MaterialTheme.shapes.medium,
+                        ) {
+                            Text("Yes", color = Color.White)
                         }
                     },
                     dismissButton = {
-                        Button(onClick = { logoutDialog = false }) {
-                            Text("No")
+                        Button(
+                            onClick = { logoutDialog = false },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color.Gray),
+                            shape = MaterialTheme.shapes.medium,
+
+                        ) {
+                            Text("No", color = Color.White)
                         }
                     }
                 )
             }
+
         }
     }
 }
