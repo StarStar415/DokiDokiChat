@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import java.time.format.TextStyle
 
 class FriendsPage : ComponentActivity() {
@@ -199,7 +200,11 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
                     .padding(bottom = 100.dp, end = 30.dp),
                 shape = CircleShape,
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Add Friend")
+                Icon(
+                    painter = painterResource(id = R.drawable.add),
+                    contentDescription = "Add Friend",
+                    modifier = Modifier.size(35.dp)
+                )
             }
 
             if (showDialog) {
