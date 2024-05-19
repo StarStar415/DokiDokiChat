@@ -61,18 +61,7 @@ import kotlin.math.sin
 
 
 class MainActivity : ComponentActivity() {
-    object Constants {
-        const val PAGE_SIZE: Int = 20
-        object LoginAPI {
-            const val URL: String = "http://localhost:8080/"
-            const val NAME = "login_api"
-        }
 
-        object SignUpAPI {
-            const val URL: String = "http://localhost:8080/"
-            const val NAME = "sign_up_api"
-        }
-    }
     companion object {
         val KEY_USER_NAME: String = "KEY_USER_NAME"
         val KEY_PASSWORD: String = "KEY_PASSWORD"
@@ -91,11 +80,14 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun LoginScreen(db: FirebaseFirestore) {
     var context = LocalContext.current
-    var username by remember { mutableStateOf("starstar") }
-    var password by remember { mutableStateOf("01057132") }
+    var username by remember { mutableStateOf("starstar415") }
+    var password by remember { mutableStateOf("01057132star") }
     var gmail by remember { mutableStateOf("01057132@email.ntou.edu.tw") }
     var showGmailField by remember { mutableStateOf(false) }
     var loginSuccess by remember { mutableStateOf(true) }
+    var usernameTaken by remember { mutableStateOf(false) }
+    var gmailTaken by remember { mutableStateOf(false) }
+
     var passwordVisibility by remember { mutableStateOf(false) }
 
     Surface(
@@ -205,13 +197,13 @@ fun LoginScreen(db: FirebaseFirestore) {
                             bottom = 8.dp
                         )
                 )
-
+                // 使用者名稱欄位
                 OutlinedTextField(
                     value = username,
                     onValueChange = { username = it },
                     label = {
                         Text(
-                            "username",
+                            "UserName",
                             fontSize = 15.sp
                         )
                     },
@@ -220,7 +212,7 @@ fun LoginScreen(db: FirebaseFirestore) {
                         .padding(bottom = 8.dp)
                         .fillMaxWidth()
                 )
-
+                // 信箱欄位
                 if (showGmailField) {
                     // Gmail field
                     OutlinedTextField(
@@ -238,12 +230,13 @@ fun LoginScreen(db: FirebaseFirestore) {
                     )
                 }
 
+                // 密碼欄位
                 OutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
                     label = {
                         Text(
-                            "password",
+                            "Password",
                             fontSize = 15.sp
                         )
                     },
@@ -258,12 +251,30 @@ fun LoginScreen(db: FirebaseFirestore) {
                     }
                 )
 
-                Text(
-                    if (loginSuccess) "" else "Login failed",
-                    color = Color.Red
-                )
+                // 登入失敗提示
+                if(!loginSuccess) {
+                    Text(
+                        "Login failed",
+                        color = Color.Red
+                    )
+                }
 
+                // username重複提示
+                if(usernameTaken) {
+                    Text(
+                        "Username is already taken",
+                        color = Color.Red
+                    )
+                }
 
+                // gmail重複提示
+                if(gmailTaken) {
+                    Text(
+                        "Gmail is already registered",
+                        color = Color.Red
+                    )
+                }
+                // 登入|註冊按鈕
                 Button(
                     onClick = {
                         if (!showGmailField) {
@@ -283,19 +294,14 @@ fun LoginScreen(db: FirebaseFirestore) {
                                     }
                                 }
                         } else {
-                            db.collection("user").add(User("",gmail,
-                                emptyList(),false,username, hashPassword(password),"zjPjbMzB7uR3AjBcgh234",
-                                username))
-                                .addOnSuccessListener { documentReference ->
-                                    Log.d("signup", "success")
-                                }
-                                .addOnFailureListener { e ->
-                                    Log.e("signup", "fail")
-                                }
+                            registerUser(gmail, username, password) { isUsernameTaken, isGmailTaken ->
+                                usernameTaken = isUsernameTaken
+                                gmailTaken = isGmailTaken
+                            }
                         }
+
                     },
 
-//
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF48FB1)),
                     shape = MaterialTheme.shapes.medium,
                     modifier = Modifier
@@ -312,7 +318,12 @@ fun LoginScreen(db: FirebaseFirestore) {
                 Row {
                     // 註冊
                     TextButton(
-                        onClick = { showGmailField = !showGmailField },
+                        onClick = {
+                            showGmailField = !showGmailField
+                            loginSuccess = true
+                            gmailTaken = false
+                            usernameTaken = false
+                        },
                         modifier = Modifier.padding(top = 8.dp) // 添加上方的外邊距
                     ) {
                         Text(if (showGmailField) "Sign in" else "Sign up")
@@ -348,3 +359,72 @@ fun clickButtonToChat(context: Context, username: String, password: String) {
 
     context.startActivity(intent)
 }
+
+fun isUsernameTaken(username: String, callback: (Boolean) -> Unit) {
+    val db = FirebaseFirestore.getInstance()
+    db.collection("user")
+        .whereEqualTo("username", username)
+        .get()
+        .addOnSuccessListener { documents ->
+            callback(!documents.isEmpty)
+        }
+        .addOnFailureListener { e ->
+            Log.e("checkUsername", "Error checking username", e)
+            callback(false)
+        }
+}
+fun isGmailTaken(gmail: String, callback: (Boolean) -> Unit) {
+    val db = FirebaseFirestore.getInstance()
+    db.collection("user")
+        .whereEqualTo("email", gmail)
+        .get()
+        .addOnSuccessListener { documents ->
+            callback(!documents.isEmpty)
+        }
+        .addOnFailureListener { e ->
+            Log.e("checkGmail", "Error checking gmail", e)
+            callback(false)
+        }
+}
+fun registerUser(
+    gmail: String,
+    username: String,
+    password: String,
+    onResult: (Boolean, Boolean) -> Unit
+) {
+    isUsernameTaken(username) { isUsernameTaken ->
+        if (isUsernameTaken) {
+            onResult(true, false)
+            return@isUsernameTaken
+        }
+
+        isGmailTaken(gmail) { isGmailTaken ->
+            if (isGmailTaken) {
+                onResult(false, true)
+                return@isGmailTaken
+            }
+
+            // 註冊
+            val db = FirebaseFirestore.getInstance()
+            db.collection("user").add(User(
+                "",    // 頭貼
+                gmail,           // gmail
+                emptyList(),     // 好友名單
+                false,
+                username,       // name
+                hashPassword(password), // password(hash)
+                username,       // userID
+                username       // username
+            ))
+                .addOnSuccessListener { documentReference ->
+                    Log.d("signup", "Success")
+                    onResult(false, false) // 註冊成功
+                }
+                .addOnFailureListener { e ->
+                    Log.e("signup", "Fail", e)
+                    onResult(false, false) // 註冊失敗
+                }
+        }
+    }
+}
+
