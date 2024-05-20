@@ -513,10 +513,6 @@ fun SettingListScreen(selectedTab: MutableState<Tab>, userName: String?,activity
                                 fontSize = 25.sp,
                                 modifier = Modifier.weight(1f)
                             )
-//                            Text(
-//                                text = ">",
-//                                fontSize = 25.sp
-//                            )
                             Icon(
                                 imageVector = Icons.Default.ChevronRight,
                                 contentDescription = "go to another page"
@@ -579,6 +575,9 @@ fun handleMenuItemClick(item: String, activity: Activity, userName: String?, onT
         "Change Password" -> {
             clickButtonToChangePassword(activity, userName)
         }
+        "Change Email" -> {
+            clickButtonToChangeEmail(activity, userName)
+        }
         "Edit Profile" -> {
 
         }
@@ -601,6 +600,14 @@ fun clickButtonToChangePassword(context: Context, userName: String?) {
     val intent = Intent()
     intent.setClassName(context,
         "com.ntou.dokidokichat.ChangePasswordPage")
+    intent.putExtra(MainActivity.KEY_USER_NAME, userName)
+    context.startActivity(intent)
+}
+
+fun clickButtonToChangeEmail(context: Context, userName: String?) {
+    val intent = Intent()
+    intent.setClassName(context,
+        "com.ntou.dokidokichat.ChangeEmailPage")
     intent.putExtra(MainActivity.KEY_USER_NAME, userName)
     context.startActivity(intent)
 }
