@@ -113,9 +113,9 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
     val addFriendRefresh: () -> Unit = {
         db.collection("user").whereEqualTo("username", userName).get()
             .addOnCompleteListener() {task->
-                friendsList = if(task.isSuccessful) {
+                friendsList = try {
                     task.result.documents[0].toObject(User::class.java)?.friends ?: emptyList()
-                } else {
+                } catch(e: IndexOutOfBoundsException) {
                     emptyList()
                 }
                 onSearch()
@@ -125,9 +125,9 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
         val query = addFriendQuery.text
         db.collection("user").whereEqualTo("userID", query).get()
             .addOnCompleteListener() {task->
-                addFriendResult = if(task.isSuccessful) {
+                addFriendResult = try {
                     task.result.documents[0].toObject(User::class.java)
-                } else {
+                } catch (e: IndexOutOfBoundsException) {
                     null
                 }
                 if (addFriendResult == null) {
