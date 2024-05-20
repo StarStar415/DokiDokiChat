@@ -49,7 +49,7 @@ import java.time.format.TextStyle
 class FriendsPage : ComponentActivity() {
 
     companion object {
-        val FRIEND_NAME: String = "FRIEND_NAME"
+        val FRIEND_USERNAME: String = "FRIEND_USERNAME"
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -410,7 +410,7 @@ fun ChatListScreen(selectedTab: MutableState<Tab>, userName: String?) {
                             .fillMaxWidth()
                             .padding(vertical = 8.dp)
                             .clickable {
-                                clickButtonToChat(context, friend.nickname)
+                                clickButtonToChat(context, userName, friend.username)
                             },
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -443,11 +443,12 @@ fun ChatListScreen(selectedTab: MutableState<Tab>, userName: String?) {
     }
 }
 
-fun clickButtonToChat(context: Context, friendName: String) {
+fun clickButtonToChat(context: Context, userName: String?, friendName: String) {
     val intent = Intent()
     intent.setClassName(context,
         "com.ntou.dokidokichat.ChatPage")
-    intent.putExtra(FriendsPage.FRIEND_NAME, friendName)
+    intent.putExtra(MainActivity.KEY_USER_NAME, userName)
+    intent.putExtra(FriendsPage.FRIEND_USERNAME, friendName)
 
     context.startActivity(intent)
 }

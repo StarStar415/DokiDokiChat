@@ -2,6 +2,7 @@ package com.ntou.dokidokichat
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -26,42 +28,152 @@ import androidx.compose.ui.unit.dp
 import com.ntou.dokidokichat.ui.theme.DokiDokiChatTheme
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import com.google.firebase.Timestamp
+import com.google.firebase.firestore.DocumentChange
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.toObject
+import com.ntou.dokidokichat.data.model.Chat
+import com.ntou.dokidokichat.data.model.Friend
+import com.ntou.dokidokichat.data.model.User
 
 class ChatPage : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val UserName = intent.getStringExtra(MainActivity.KEY_USER_NAME)
-            val FriendName = intent.getStringExtra(FriendsPage.FRIEND_NAME)
+            val userName = intent.getStringExtra(MainActivity.KEY_USER_NAME)
+            val friendUserName = intent.getStringExtra(FriendsPage.FRIEND_USERNAME)
 
-            ShowChatScreen(UserName, FriendName, onBackPressed = { finish() })
+            ShowChatScreen(userName!!, friendUserName!!, onBackPressed = { finish() })
         }
     }
 }
 
-
 data class Message(
     val content: String,
-    val sentByUser: Boolean
+    val sentByUser: Boolean,
+    val time: Timestamp = Timestamp.now()
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ShowChatScreen(userName: String?, friendName: String?, onBackPressed: () -> Unit) {
+fun ShowChatScreen(userName: String, friendUserName: String, onBackPressed: () -> Unit) {
     var messages by remember {
         mutableStateOf(
-            listOf(
-                Message("hi", false),
-                Message("安安", true)
-            )
+            emptyList<Message>()
         )
     }
     var messageText by remember { mutableStateOf(TextFieldValue("")) }
+    val listState = rememberLazyListState()
+    val db = FirebaseFirestore.getInstance()
+    var oldMsgFlag by remember { mutableStateOf(false)}
+    var newMsgFlag by remember { mutableStateOf(false)}
+    var count by remember{ mutableLongStateOf(1)}
+    var oldVisibleItemIdx by remember { mutableIntStateOf(1) }
+    var oldVisibleItemOffset by remember { mutableIntStateOf(1) }
+    lateinit var friendData: User
+    var friend_nickName by remember{ mutableStateOf("")}
+    db.collection("user").whereEqualTo("username", friendUserName).get()
+        .addOnCompleteListener(){task->
+            friendData = task.result.documents[0].toObject(User::class.java)!!
+            friend_nickName = friendData.name
+        }
+    val msgOldRefresh: () -> Unit = {
+        db.collection("chat")
+            .whereArrayContains("member", userName)
+            .orderBy("sendTime", Query.Direction.DESCENDING)
+            .limit(20*count).get()
+            .addOnCompleteListener(){ task ->
+                if (task.isSuccessful) {
+                    val fetchedMessages = task.result?.documents?.mapNotNull { document ->
+                        val chat = document.toObject(Chat::class.java)
+                        chat?.let {
+                            if (it.member.contains(friendUserName)) {
+                                Message(it.content, it.senderUsername == userName, it.sendTime)
+                            } else {
+                                null
+                            }
+                        }
+                    }?.filterNot { newMessage ->
+                        messages.any { data ->
+                            data.content == newMessage.content &&
+                                    data.sentByUser == newMessage.sentByUser &&
+                                    data.time == newMessage.time
+                        }
+                    } ?: emptyList()
+                    messages = fetchedMessages.reversed() + messages
+                    oldVisibleItemIdx = listState.firstVisibleItemIndex + fetchedMessages.size
+                    oldVisibleItemOffset = listState.firstVisibleItemScrollOffset
+                    oldMsgFlag = true
+                }
+            }
+    }
+    val msgNewRefresh: () -> Unit = {
+        db.collection("chat")
+        .whereArrayContains("member", userName)
+        .orderBy("sendTime", Query.Direction.DESCENDING)
+        .limit(3).get()
+        .addOnCompleteListener(){ task ->
+            if (task.isSuccessful) {
+                val fetchedMessages = task.result?.documents?.mapNotNull { document ->
+                    val chat = document.toObject(Chat::class.java)
+                    chat?.let {
+                        if (it.member.contains(friendUserName)) {
+                            Message(it.content, it.senderUsername == userName, it.sendTime)
+                        } else {
+                            null
+                        }
+                    }
+                }?.filterNot { newMessage ->
+                    messages.any { data ->
+                        data.content == newMessage.content &&
+                                data.sentByUser == newMessage.sentByUser &&
+                                data.time == newMessage.time
+                    }
+                } ?: emptyList()
+                messages += fetchedMessages
+            }
+        }
+    }
+    //加入新增時的監聽器
+    db.collection("chat").addSnapshotListener{snapshots, e->
+        if (e != null) {
+            Log.e("error", e.toString())
+            return@addSnapshotListener
+        }
+        if (snapshots != null) {
+            for (docChange in snapshots.documentChanges) {
+                when (docChange.type) {
+                    DocumentChange.Type.ADDED -> {
+                        msgNewRefresh()
+                    }
+                    DocumentChange.Type.MODIFIED -> {
+                        //Nothing
+                    }
+                    DocumentChange.Type.REMOVED -> {
+                        //Nothing
+                    }
+                }
+            }
+        }
+    }
+    LaunchedEffect(oldMsgFlag) {
+        if(oldMsgFlag){
+            listState.scrollToItem(oldVisibleItemIdx, oldVisibleItemOffset)
+            oldMsgFlag = false
+        }
+    }
+    LaunchedEffect(newMsgFlag) {
+        if(newMsgFlag) {
+            listState.animateScrollToItem(messages.size - 1)
+            newMsgFlag = false
+        }
+    }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = "Chat with $friendName") },
+                title = { Text(text = "Chat with $friend_nickName") },
                 navigationIcon = {
                     IconButton(onClick = onBackPressed) {
                         Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
@@ -77,6 +189,7 @@ fun ShowChatScreen(userName: String?, friendName: String?, onBackPressed: () -> 
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
                 LazyColumn(
+                    state = listState,
                     modifier = Modifier.weight(1f),
                     reverseLayout = false,
                     contentPadding = PaddingValues(16.dp)
@@ -136,7 +249,16 @@ fun ShowChatScreen(userName: String?, friendName: String?, onBackPressed: () -> 
                     Button(
                         onClick = {
                             if (messageText.text.isNotBlank()) {
-                                messages = messages + (Message(messageText.text, true))
+                                //輸入訊息
+                                db.collection("chat")
+                                    .add(Chat(
+                                        messageText.text,
+                                        listOf(userName, friendUserName),
+                                        Timestamp.now(),
+                                        userName,
+                                        "text"
+                                    ))
+                                newMsgFlag = true
                                 messageText = TextFieldValue("")
                             }
                         },
@@ -148,4 +270,16 @@ fun ShowChatScreen(userName: String?, friendName: String?, onBackPressed: () -> 
             }
         }
     )
+    val isScrolledToTop by remember {
+        derivedStateOf {
+            listState.firstVisibleItemIndex == 0 && listState.firstVisibleItemScrollOffset == 0
+        }
+    }
+
+    LaunchedEffect(isScrolledToTop) {
+        if (isScrolledToTop) {
+            count+=1
+            msgOldRefresh()
+        }
+    }
 }
