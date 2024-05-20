@@ -33,6 +33,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import com.google.firebase.firestore.DocumentChange
@@ -510,9 +513,13 @@ fun SettingListScreen(selectedTab: MutableState<Tab>, userName: String?,activity
                                 fontSize = 25.sp,
                                 modifier = Modifier.weight(1f)
                             )
-                            Text(
-                                text = ">",
-                                fontSize = 25.sp
+//                            Text(
+//                                text = ">",
+//                                fontSize = 25.sp
+//                            )
+                            Icon(
+                                imageVector = Icons.Default.ChevronRight,
+                                contentDescription = "go to another page"
                             )
                         }
                     }
