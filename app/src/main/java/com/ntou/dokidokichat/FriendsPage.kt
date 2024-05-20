@@ -453,7 +453,7 @@ fun SettingListScreen(selectedTab: MutableState<Tab>, userName: String?,activity
                             .fillMaxWidth()
                             .clickable {
                                 selectedMenuItem = item
-                                handleMenuItemClick(item, { selectedTab.value = it }, { logoutDialog = true })
+                                handleMenuItemClick(item,activity,userName,{ selectedTab.value = it }, { logoutDialog = true })
                             }
                     ) {
                         Row(
@@ -521,13 +521,13 @@ fun SettingListScreen(selectedTab: MutableState<Tab>, userName: String?,activity
     }
 }
 
-fun handleMenuItemClick(item: String, onTabSelected: (Tab) -> Unit, onLogout: () -> Unit) {
+fun handleMenuItemClick(item: String, activity: Activity, userName: String?, onTabSelected: (Tab) -> Unit, onLogout: () -> Unit) {
     when (item) {
         "Profile" -> {
             onTabSelected(Tab.Profile)
         }
         "Change Password" -> {
-
+            clickButtonToChangePassword(activity, userName)
         }
         "Edit Profile" -> {
 
@@ -545,6 +545,14 @@ fun handleMenuItemClick(item: String, onTabSelected: (Tab) -> Unit, onLogout: ()
             onLogout()
         }
     }
+}
+
+fun clickButtonToChangePassword(context: Context, userName: String?) {
+    val intent = Intent()
+    intent.setClassName(context,
+        "com.ntou.dokidokichat.ChangePasswordPage")
+    intent.putExtra(MainActivity.KEY_USER_NAME, userName)
+    context.startActivity(intent)
 }
 
 

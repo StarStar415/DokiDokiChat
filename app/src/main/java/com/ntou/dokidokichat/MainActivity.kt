@@ -28,6 +28,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,6 +52,9 @@ import androidx.graphics.shapes.RoundedPolygon
 import androidx.graphics.shapes.toPath
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ntou.dokidokichat.data.model.User
+import kotlinx.coroutines.delay
+import kotlin.concurrent.thread
+import kotlin.concurrent.timer
 import java.security.MessageDigest
 import kotlin.math.PI
 import kotlin.math.cos
