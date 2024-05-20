@@ -35,6 +35,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.toObject
 import com.google.firebase.firestore.toObjects
@@ -112,15 +113,39 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
     }
     val addFriendRefresh: () -> Unit = {
         db.collection("user").whereEqualTo("username", userName).get()
-            .addOnCompleteListener() {task->
+            .addOnCompleteListener() { task ->
                 friendsList = try {
                     task.result.documents[0].toObject(User::class.java)?.friends ?: emptyList()
-                } catch(e: IndexOutOfBoundsException) {
+                } catch (e: IndexOutOfBoundsException) {
                     emptyList()
-                }
+                }.sortedWith(compareBy<Friend>{it.favor}.thenBy{it.nickname})
                 onSearch()
             }
     }
+
+    //加入資料更改的監聽器
+    db.collection("user").addSnapshotListener {snapshots, e->
+        if (e != null) {
+            Log.e("error", e.toString())
+            return@addSnapshotListener
+        }
+        if (snapshots != null) {
+            for (docChange in snapshots.documentChanges) {
+                when (docChange.type) {
+                    DocumentChange.Type.ADDED -> {
+                        //Nothing
+                    }
+                    DocumentChange.Type.MODIFIED -> {
+                        addFriendRefresh()
+                    }
+                    DocumentChange.Type.REMOVED -> {
+                        //Nothing
+                    }
+                }
+            }
+        }
+    }
+
     val onAddFriendSearch: () -> Unit = {
         val query = addFriendQuery.text
         db.collection("user").whereEqualTo("userID", query).get()
@@ -282,20 +307,38 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
                                     )
                                     Button(
                                         onClick = {
+                                            lateinit var tmp:User
+                                            //使用者加好友
                                             db.collection("user")
                                                 .whereEqualTo("username", userName)
                                                 .get()
                                                 .addOnCompleteListener(){task->
                                                     val res = task.result.documents[0].toObject(User::class.java)
-                                                    res!!.friends += Friend(0,it.name,it.userID,it.username)
+                                                    tmp = res!!
+                                                    res.friends += Friend(0,it.name,it.userID,it.username)
+                                                    val userRef = db.collection("user").document(task.result.documents[0].id)
+                                                    userRef.update("friends", res.friends)
+                                                        .addOnSuccessListener {
+                                                            Toast.makeText(context, "加入成功", Toast.LENGTH_SHORT).show()
+                                                        }
+                                                        .addOnFailureListener { e ->
+                                                            Log.e("error", "Error adding friend")
+                                                        }
+                                                }
+                                            //被加好友方同步加使用者好友
+                                            db.collection("user")
+                                                .whereEqualTo("username", it.username)
+                                                .get()
+                                                .addOnCompleteListener(){task->
+                                                    val res = task.result.documents[0].toObject(User::class.java)
+                                                    res!!.friends += Friend(0,tmp.name,tmp.userID,tmp.username)
                                                     val userRef = db.collection("user").document(task.result.documents[0].id)
                                                     userRef.update("friends", res!!.friends)
                                                         .addOnSuccessListener {
-                                                            Toast.makeText(context, "加入成功", Toast.LENGTH_SHORT).show()
-                                                            addFriendRefresh()
+                                                            Log.d("adding", "success")
                                                         }
                                                         .addOnFailureListener { e ->
-                                                            Log.e("error", "Error adding friend", e)
+                                                            Log.e("error", "Friend error adding user")
                                                         }
                                                 }
                                             showDialog = false
@@ -332,7 +375,7 @@ fun ChatListScreen(selectedTab: MutableState<Tab>, userName: String?) {
                 task.result.documents[0].toObject(User::class.java)?.friends ?: emptyList()
             } catch(e: IndexOutOfBoundsException) {
                 emptyList()
-            }
+            }.sortedWith( compareBy<Friend> { it.favor }.thenBy{it.nickname} )
         }
     val context = LocalContext.current
 
