@@ -328,9 +328,9 @@ fun ChatListScreen(selectedTab: MutableState<Tab>, userName: String?) {
     val db = FirebaseFirestore.getInstance()
     db.collection("user").whereEqualTo("username", userName).get()
         .addOnCompleteListener() {task->
-            friendsList = if(task.isSuccessful) {
+            friendsList = try {
                 task.result.documents[0].toObject(User::class.java)?.friends ?: emptyList()
-            } else {
+            } catch(e: IndexOutOfBoundsException) {
                 emptyList()
             }
         }
