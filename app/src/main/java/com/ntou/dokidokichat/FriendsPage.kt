@@ -582,7 +582,7 @@ fun handleMenuItemClick(item: String, activity: Activity, userName: String?, onT
 
         }
         "Set ID" -> {
-
+            clickButtonToSetID(activity, userName)
         }
         "Add Friend" -> {
 
@@ -612,6 +612,13 @@ fun clickButtonToChangeEmail(context: Context, userName: String?) {
     context.startActivity(intent)
 }
 
+fun clickButtonToSetID(context: Context, userName: String?) {
+    val intent = Intent()
+    intent.setClassName(context,
+        "com.ntou.dokidokichat.SetIDPage")
+    intent.putExtra(MainActivity.KEY_USER_NAME, userName)
+    context.startActivity(intent)
+}
 
 @Composable
 fun BottomNavigation(
