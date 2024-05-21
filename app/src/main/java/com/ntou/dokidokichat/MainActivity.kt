@@ -53,12 +53,18 @@ import androidx.graphics.shapes.toPath
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ntou.dokidokichat.data.model.User
 import kotlinx.coroutines.delay
+import perfetto.protos.TraceAnalysisStats
 import kotlin.concurrent.thread
 import kotlin.concurrent.timer
 import java.security.MessageDigest
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.firestore.ktx.toObject
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.firestore.Source
+
 
 class MainActivity : ComponentActivity() {
 
@@ -226,7 +232,7 @@ fun LoginScreen(db: FirebaseFirestore) {
                             db.collection("user")
                                 .whereEqualTo("username", username)
                                 .whereEqualTo("password", hashPassword(password))
-                                .get().addOnCompleteListener {task ->
+                                .get(Source.SERVER).addOnCompleteListener {task ->
                                     isLoading = false
                                     if (task.isSuccessful && task.result != null && task.result
                                             .documents
@@ -320,7 +326,7 @@ fun isUsernameTaken(username: String, callback: (Boolean) -> Unit) {
     val db = FirebaseFirestore.getInstance()
     db.collection("user")
         .whereEqualTo("username", username)
-        .get()
+        .get(Source.SERVER)
         .addOnSuccessListener { documents ->
             callback(!documents.isEmpty)
         }
@@ -333,7 +339,7 @@ fun isGmailTaken(gmail: String, callback: (Boolean) -> Unit) {
     val db = FirebaseFirestore.getInstance()
     db.collection("user")
         .whereEqualTo("email", gmail)
-        .get()
+        .get(Source.SERVER)
         .addOnSuccessListener { documents ->
             callback(!documents.isEmpty)
         }
