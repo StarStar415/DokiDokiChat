@@ -1,8 +1,10 @@
 package com.ntou.dokidokichat
 
-import androidx.appcompat.app.AppCompatActivity
+import android.content.Context
+import android.net.ConnectivityManager
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -13,39 +15,60 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import com.ntou.dokidokichat.ui.theme.DokiDokiChatTheme
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.unit.dp
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.Source
-import com.google.firebase.firestore.toObject
 import com.ntou.dokidokichat.data.model.Chat
-import com.ntou.dokidokichat.data.model.Friend
 import com.ntou.dokidokichat.data.model.User
+import kotlinx.coroutines.delay
 
+lateinit var member_string: String
 class ChatPage : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             val userName = intent.getStringExtra(MainActivity.KEY_USER_NAME)
             val friendUserName = intent.getStringExtra(FriendsPage.FRIEND_USERNAME)
-
-            ShowChatScreen(userName!!, friendUserName!!, onBackPressed = { finish() })
+            val tmp = listOf(userName!!, friendUserName!!).sorted()
+            member_string = ""
+            for(t in tmp) {
+                member_string += "$t/"
+            }
+            member_string = member_string.substring(0, member_string.lastIndex)
+            ShowChatScreen(userName, friendUserName, onBackPressed = { finish() }, this)
         }
     }
 }
@@ -58,7 +81,7 @@ data class Message(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ShowChatScreen(userName: String, friendUserName: String, onBackPressed: () -> Unit) {
+fun ShowChatScreen(userName: String, friendUserName: String, onBackPressed: () -> Unit, context: Context) {
     var messages by remember {
         mutableStateOf(
             emptyList<Message>()
@@ -67,21 +90,38 @@ fun ShowChatScreen(userName: String, friendUserName: String, onBackPressed: () -
     var messageText by remember { mutableStateOf(TextFieldValue("")) }
     val listState = rememberLazyListState()
     val db = FirebaseFirestore.getInstance()
+
     var oldMsgFlag by remember { mutableStateOf(false)}
     var newMsgFlag by remember { mutableStateOf(false)}
-    var count by remember{ mutableLongStateOf(1)}
+    var bottomFlag by remember { mutableStateOf(false)}
+    var noInternet by remember { mutableStateOf(false)}
+    var preCount by remember { mutableLongStateOf(0) }
+    var count by remember { mutableLongStateOf(1)}
     var oldVisibleItemIdx by remember { mutableIntStateOf(1) }
     var oldVisibleItemOffset by remember { mutableIntStateOf(1) }
     lateinit var friendData: User
     var friend_nickName by remember{ mutableStateOf("")}
+
+    val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    LaunchedEffect(true) {
+        while(true) {
+            noInternet = connectivityManager.activeNetwork == null
+            delay(1000)
+        }
+    }
     db.collection("user").whereEqualTo("username", friendUserName).get(Source.SERVER)
         .addOnCompleteListener(){task->
-            friendData = task.result.documents[0].toObject(User::class.java)!!
-            friend_nickName = friendData.name
+            if(task.isSuccessful) {
+                friendData = task.result.documents[0].toObject(User::class.java)!!
+                friend_nickName = friendData.name
+            }
+            else {
+                Toast.makeText(context, "尚未連接網路", Toast.LENGTH_SHORT).show()
+            }
         }
     val msgOldRefresh: () -> Unit = {
         db.collection("chat")
-            .whereArrayContains("member", userName)
+            .whereEqualTo("member", member_string)
             .orderBy("sendTime", Query.Direction.DESCENDING)
             .limit(20*count).get(Source.SERVER)
             .addOnCompleteListener(){ task ->
@@ -89,11 +129,7 @@ fun ShowChatScreen(userName: String, friendUserName: String, onBackPressed: () -
                     val fetchedMessages = task.result?.documents?.mapNotNull { document ->
                         val chat = document.toObject(Chat::class.java)
                         chat?.let {
-                            if (it.member.contains(friendUserName)) {
-                                Message(it.content, it.senderUsername == userName, it.sendTime)
-                            } else {
-                                null
-                            }
+                            Message(it.content, it.senderUsername == userName, it.sendTime)
                         }
                     }?.filterNot { newMessage ->
                         messages.any { data ->
@@ -102,16 +138,29 @@ fun ShowChatScreen(userName: String, friendUserName: String, onBackPressed: () -
                                     data.time == newMessage.time
                         }
                     } ?: emptyList()
-                    messages = fetchedMessages.reversed() + messages
-                    oldVisibleItemIdx = listState.firstVisibleItemIndex + fetchedMessages.size
-                    oldVisibleItemOffset = listState.firstVisibleItemScrollOffset
-                    oldMsgFlag = true
+                    preCount = count
+                    if(fetchedMessages != emptyList<Message>()) {
+                        messages = fetchedMessages.reversed() + messages
+                        oldVisibleItemIdx = listState.firstVisibleItemIndex + fetchedMessages.size
+                        oldVisibleItemOffset = listState.firstVisibleItemScrollOffset
+                        oldMsgFlag = true
+                        count += 1
+                    }
                 }
             }
     }
+    LaunchedEffect(noInternet) {
+        if(!noInternet) {
+            msgOldRefresh()
+        }
+        while(noInternet) {
+            delay(1000)
+        }
+    }
+
     val msgNewRefresh: () -> Unit = {
         db.collection("chat")
-        .whereArrayContains("member", userName)
+        .whereEqualTo("member", member_string)
         .orderBy("sendTime", Query.Direction.DESCENDING)
         .limit(2).get(Source.SERVER)
         .addOnCompleteListener(){ task ->
@@ -119,11 +168,7 @@ fun ShowChatScreen(userName: String, friendUserName: String, onBackPressed: () -
                 val fetchedMessages = task.result?.documents?.mapNotNull { document ->
                     val chat = document.toObject(Chat::class.java)
                     chat?.let {
-                        if (it.member.contains(friendUserName)) {
-                            Message(it.content, it.senderUsername == userName, it.sendTime)
-                        } else {
-                            null
-                        }
+                        Message(it.content, it.senderUsername == userName, it.sendTime)
                     }
                 }?.filterNot { newMessage ->
                     messages.any { data ->
@@ -132,6 +177,7 @@ fun ShowChatScreen(userName: String, friendUserName: String, onBackPressed: () -
                                 data.time == newMessage.time
                     }
                 } ?: emptyList()
+                bottomFlag = !listState.canScrollForward
                 messages += fetchedMessages
             }
         }
@@ -165,7 +211,7 @@ fun ShowChatScreen(userName: String, friendUserName: String, onBackPressed: () -
         }
     }
     LaunchedEffect(messages) {
-        if(newMsgFlag) {
+        if(newMsgFlag || bottomFlag) {
             try {
                 listState.animateScrollToItem(messages.size - 1)
             } catch (e: Exception) {
@@ -254,22 +300,34 @@ fun ShowChatScreen(userName: String, friendUserName: String, onBackPressed: () -
                     Button(
                         onClick = {
                             if (messageText.text.isNotBlank()) {
-                                //輸入訊息
-                                db.collection("chat")
-                                    .add(Chat(
-                                        messageText.text,
-                                        listOf(userName, friendUserName),
-                                        Timestamp.now(),
-                                        userName,
-                                        "text"
-                                    ))
-                                newMsgFlag = true
-                                messageText = TextFieldValue("")
+                                if (!noInternet) {
+                                    //輸入訊息
+                                    db.collection("chat")
+                                        .add(
+                                            Chat(
+                                                messageText.text,
+                                                member_string,
+                                                Timestamp.now(),
+                                                userName,
+                                                "text"
+                                            )
+                                        )
+                                    newMsgFlag = true
+                                    messageText = TextFieldValue("")
+                                }
                             }
                         },
                         modifier = Modifier.padding(start = 8.dp)
                     ) {
-                        Text("Send")
+                        if(!noInternet) {
+                            Text("Send")
+                        }
+                        else {
+                            CircularProgressIndicator(
+                                color = Color.White,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
                     }
                 }
             }
@@ -282,8 +340,7 @@ fun ShowChatScreen(userName: String, friendUserName: String, onBackPressed: () -
     }
 
     LaunchedEffect(isScrolledToTop) {
-        if (isScrolledToTop) {
-            count+=1
+        if (isScrolledToTop && preCount != count && preCount != 0L) {
             msgOldRefresh()
         }
     }

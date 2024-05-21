@@ -116,11 +116,12 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
         }
     }
     val addFriendRefresh: () -> Unit = {
-        db.collection("user").whereEqualTo("username", userName).get(Source.SERVER)
-            .addOnCompleteListener() { task ->
-                friendsList = try {
+        db.collection("user").whereEqualTo("username", userName)
+            .get(Source.SERVER)
+            .addOnCompleteListener { task ->
+                friendsList = if(task.isSuccessful) {
                     task.result.documents[0].toObject(User::class.java)?.friends ?: emptyList()
-                } catch (e: IndexOutOfBoundsException) {
+                } else {
                     emptyList()
                 }.sortedWith(compareBy<Friend>{it.favor}.thenBy{it.nickname})
                 onSearch()
@@ -152,11 +153,12 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
 
     val onAddFriendSearch: () -> Unit = {
         val query = addFriendQuery.text
-        db.collection("user").whereEqualTo("userID", query).get(Source.SERVER)
-            .addOnCompleteListener() {task->
-                addFriendResult = try {
+        db.collection("user").whereEqualTo("userID", query)
+            .get(Source.SERVER)
+            .addOnCompleteListener {task->
+                addFriendResult = if(task.isSuccessful) {
                     task.result.documents[0].toObject(User::class.java)
-                } catch (e: IndexOutOfBoundsException) {
+                } else {
                     null
                 }
                 if (addFriendResult == null) {
@@ -375,9 +377,9 @@ fun ChatListScreen(selectedTab: MutableState<Tab>, userName: String?) {
     val db = FirebaseFirestore.getInstance()
     db.collection("user").whereEqualTo("username", userName).get(Source.SERVER)
         .addOnCompleteListener() {task->
-            friendsList = try {
+            friendsList = if(task.isSuccessful) {
                 task.result.documents[0].toObject(User::class.java)?.friends ?: emptyList()
-            } catch(e: IndexOutOfBoundsException) {
+            } else {
                 emptyList()
             }.sortedWith( compareBy<Friend> { it.favor }.thenBy{it.nickname} )
         }
