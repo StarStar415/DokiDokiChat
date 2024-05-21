@@ -32,6 +32,7 @@ import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.Source
 import com.google.firebase.firestore.toObject
 import com.ntou.dokidokichat.data.model.Chat
 import com.ntou.dokidokichat.data.model.Friend
@@ -73,7 +74,7 @@ fun ShowChatScreen(userName: String, friendUserName: String, onBackPressed: () -
     var oldVisibleItemOffset by remember { mutableIntStateOf(1) }
     lateinit var friendData: User
     var friend_nickName by remember{ mutableStateOf("")}
-    db.collection("user").whereEqualTo("username", friendUserName).get()
+    db.collection("user").whereEqualTo("username", friendUserName).get(Source.SERVER)
         .addOnCompleteListener(){task->
             friendData = task.result.documents[0].toObject(User::class.java)!!
             friend_nickName = friendData.name
@@ -82,7 +83,7 @@ fun ShowChatScreen(userName: String, friendUserName: String, onBackPressed: () -
         db.collection("chat")
             .whereArrayContains("member", userName)
             .orderBy("sendTime", Query.Direction.DESCENDING)
-            .limit(20*count).get()
+            .limit(20*count).get(Source.SERVER)
             .addOnCompleteListener(){ task ->
                 if (task.isSuccessful) {
                     val fetchedMessages = task.result?.documents?.mapNotNull { document ->
@@ -112,7 +113,7 @@ fun ShowChatScreen(userName: String, friendUserName: String, onBackPressed: () -
         db.collection("chat")
         .whereArrayContains("member", userName)
         .orderBy("sendTime", Query.Direction.DESCENDING)
-        .limit(3).get()
+        .limit(2).get(Source.SERVER)
         .addOnCompleteListener(){ task ->
             if (task.isSuccessful) {
                 val fetchedMessages = task.result?.documents?.mapNotNull { document ->
@@ -163,9 +164,13 @@ fun ShowChatScreen(userName: String, friendUserName: String, onBackPressed: () -
             oldMsgFlag = false
         }
     }
-    LaunchedEffect(newMsgFlag) {
+    LaunchedEffect(messages) {
         if(newMsgFlag) {
-            listState.animateScrollToItem(messages.size - 1)
+            try {
+                listState.animateScrollToItem(messages.size - 1)
+            } catch (e: Exception) {
+                Log.d("newChat", "first msg!")
+            }
             newMsgFlag = false
         }
     }

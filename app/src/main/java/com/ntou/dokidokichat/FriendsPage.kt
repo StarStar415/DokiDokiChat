@@ -40,6 +40,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Source
 import com.google.firebase.firestore.toObject
 import com.google.firebase.firestore.toObjects
 import com.ntou.dokidokichat.data.model.Friend
@@ -115,7 +116,7 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
         }
     }
     val addFriendRefresh: () -> Unit = {
-        db.collection("user").whereEqualTo("username", userName).get()
+        db.collection("user").whereEqualTo("username", userName).get(Source.SERVER)
             .addOnCompleteListener() { task ->
                 friendsList = try {
                     task.result.documents[0].toObject(User::class.java)?.friends ?: emptyList()
@@ -151,7 +152,7 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
 
     val onAddFriendSearch: () -> Unit = {
         val query = addFriendQuery.text
-        db.collection("user").whereEqualTo("userID", query).get()
+        db.collection("user").whereEqualTo("userID", query).get(Source.SERVER)
             .addOnCompleteListener() {task->
                 addFriendResult = try {
                     task.result.documents[0].toObject(User::class.java)
@@ -314,7 +315,7 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
                                             //使用者加好友
                                             db.collection("user")
                                                 .whereEqualTo("username", userName)
-                                                .get()
+                                                .get(Source.SERVER)
                                                 .addOnCompleteListener(){task->
                                                     val res = task.result.documents[0].toObject(User::class.java)
                                                     tmp = res!!
@@ -331,7 +332,7 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
                                             //被加好友方同步加使用者好友
                                             db.collection("user")
                                                 .whereEqualTo("username", it.username)
-                                                .get()
+                                                .get(Source.SERVER)
                                                 .addOnCompleteListener(){task->
                                                     val res = task.result.documents[0].toObject(User::class.java)
                                                     res!!.friends += Friend(0,tmp.name,tmp.userID,tmp.username)
@@ -372,7 +373,7 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
 fun ChatListScreen(selectedTab: MutableState<Tab>, userName: String?) {
     var friendsList: List<Friend> by remember{ mutableStateOf(emptyList())}
     val db = FirebaseFirestore.getInstance()
-    db.collection("user").whereEqualTo("username", userName).get()
+    db.collection("user").whereEqualTo("username", userName).get(Source.SERVER)
         .addOnCompleteListener() {task->
             friendsList = try {
                 task.result.documents[0].toObject(User::class.java)?.friends ?: emptyList()
