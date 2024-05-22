@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.ui.platform.LocalContext
@@ -95,6 +96,7 @@ fun BottomNavigationScreen(selectedTab: MutableState<Tab>) {
     )
 }
 
+// 個人檔案 顯示好友名單和搜尋（要可以改好友暱稱）
 @Composable
 fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
     val userName = userName ?: "StarStar415"
@@ -105,6 +107,9 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
     var showDialog by remember { mutableStateOf(false) }
     var addFriendQuery by remember { mutableStateOf(TextFieldValue("")) }
     var addFriendResult by remember { mutableStateOf<User?>(null) }
+    var userDisplayName by remember { mutableStateOf("User") } // For displaying the user's name
+    var editNameDialog by remember { mutableStateOf(false) }
+    var newName by remember { mutableStateOf(TextFieldValue("")) }
     val context = LocalContext.current
 
     val onSearch: () -> Unit = {
@@ -176,6 +181,20 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
     }
     addFriendRefresh()
 
+    val updateNameRefresh: () -> Unit = {
+        db.collection("user").whereEqualTo("username", userName)
+            .get(Source.SERVER)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val user = task.result.documents[0].toObject(User::class.java)
+                    userDisplayName = user?.name ?: userName ?: "User"
+                    onSearch()
+                }
+            }
+    }
+
+    updateNameRefresh()
+
     Surface(
         color = Color.White,
         modifier = Modifier.fillMaxSize()
@@ -209,11 +228,19 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Username
-                Text(
-                    text = userName,
-                    fontSize = 25.sp,
-                    modifier = Modifier.padding(bottom = 10.dp)
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = userDisplayName,
+                        fontSize = 25.sp,
+                        modifier = Modifier.padding(bottom = 10.dp)
+                    )
+                    IconButton(onClick = { editNameDialog = true }) {
+                        Icon(Icons.Default.Edit, contentDescription = "Edit Name")
+                    }
+                }
+
 
                 // Search Bar
                 Row(
@@ -362,6 +389,53 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
                     confirmButton = {
                         TextButton(onClick = { showDialog = false }) {
                             Text("close")
+                        }
+                    }
+                )
+            }
+
+            // Edit Name Dialog
+            if (editNameDialog) {
+                AlertDialog(
+                    onDismissRequest = { editNameDialog = false },
+                    title = { Text("Edit Name") },
+                    text = {
+                        Column {
+                            OutlinedTextField(
+                                value = newName,
+                                onValueChange = { newName = it },
+                                placeholder = { Text("New Name") }
+                            )
+                        }
+                    },
+                    confirmButton = {
+                        Button(onClick = {
+                            val newNameStr = newName.text
+                            db.collection("user").whereEqualTo("username", userName)
+                                .get(Source.SERVER)
+                                .addOnCompleteListener { task ->
+                                    if (task.isSuccessful) {
+                                        val userDoc = task.result.documents[0]
+                                        val userRef = db.collection("user").document(userDoc.id)
+                                        userRef.update("name", newNameStr)
+                                            .addOnSuccessListener {
+                                                userDisplayName = newNameStr
+                                                Toast.makeText(context, "Name updated successfully", Toast.LENGTH_SHORT).show()
+                                            }
+                                            .addOnFailureListener { e ->
+                                                Log.e("error", "Error updating name", e)
+                                            }
+                                    }
+                                }
+                            editNameDialog = false
+                            updateNameRefresh()
+                        }) {
+                            Text("Save")
+                        }
+                    },
+                    dismissButton = {
+                        Button(onClick = { editNameDialog = false }) {
+                            Text("Cancel")
                         }
                     }
                 )
