@@ -110,6 +110,8 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
     var userDisplayName by remember { mutableStateOf("User") } // For displaying the user's name
     var editNameDialog by remember { mutableStateOf(false) }
     var newName by remember { mutableStateOf(TextFieldValue("")) }
+    var editFriendDialog by remember { mutableStateOf<Friend?>(null) }
+    var newFriendNickname by remember { mutableStateOf(TextFieldValue("")) }
     val context = LocalContext.current
 
     val onSearch: () -> Unit = {
@@ -273,6 +275,16 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
                 }
 
                 // Friends List
+//                LazyColumn(
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .padding(16.dp)
+//                        .weight(1f)
+//                ) {
+//                    items(filteredFriendsList) { friend ->
+//                        Text(text = friend.nickname, fontSize = 25.sp, modifier = Modifier.padding(8.dp))
+//                    }
+//                }
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -280,7 +292,18 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
                         .weight(1f)
                 ) {
                     items(filteredFriendsList) { friend ->
-                        Text(text = friend.nickname, fontSize = 25.sp, modifier = Modifier.padding(8.dp))
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp)
+                                .clickable {
+                                    editFriendDialog = friend
+                                    newFriendNickname = TextFieldValue(friend.nickname)
+                                },
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(text = friend.nickname, fontSize = 25.sp, modifier = Modifier.padding(8.dp))
+                        }
                     }
                 }
                 // Bottom Navigation
@@ -435,6 +458,61 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
                     },
                     dismissButton = {
                         Button(onClick = { editNameDialog = false }) {
+                            Text("Cancel")
+                        }
+                    }
+                )
+            }
+
+            if (editFriendDialog != null) {
+                AlertDialog(
+                    onDismissRequest = { editFriendDialog = null },
+                    title = { Text("Edit Friend's Nickname") },
+                    text = {
+                        Column {
+                            BasicTextField(
+                                value = newFriendNickname,
+                                onValueChange = { newFriendNickname = it },
+                                textStyle = androidx.compose.ui.text.TextStyle(fontSize = 20.sp),
+                                modifier = Modifier
+                                    .background(
+                                        color = Color(0xFFFFD9EC),
+                                        shape = MaterialTheme.shapes.small
+                                    )
+                                    .padding(8.dp)
+                            )
+                        }
+                    },
+                    confirmButton = {
+                        Button(onClick = {
+                            val friendToUpdate = editFriendDialog
+                            if (friendToUpdate != null) {
+                                db.collection("user").whereEqualTo("username", userName)
+                                    .get(Source.SERVER)
+                                    .addOnCompleteListener { task ->
+                                        if (task.isSuccessful) {
+                                            val userDoc = task.result.documents[0]
+                                            val user = userDoc.toObject(User::class.java)
+                                            if (user != null) {
+                                                val updatedFriends = user.friends.map { friend ->
+                                                    if (friend.username == friendToUpdate.username) {
+                                                        friend.copy(nickname = newFriendNickname.text)
+                                                    } else {
+                                                        friend
+                                                    }
+                                                }
+                                                userDoc.reference.update("friends", updatedFriends)
+                                            }
+                                        }
+                                        editFriendDialog = null
+                                    }
+                            }
+                        }) {
+                            Text("Save")
+                        }
+                    },
+                    dismissButton = {
+                        Button(onClick = { editFriendDialog = null }) {
                             Text("Cancel")
                         }
                     }
