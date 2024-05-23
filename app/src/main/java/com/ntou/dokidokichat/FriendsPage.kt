@@ -646,12 +646,12 @@ fun SettingListScreen(selectedTab: MutableState<Tab>, userName: String?,activity
                     "Profile",
                     "Change Password",
                     "Change Email",
-                    "Edit Profile",
                     "Set ID",
                     "Add Friend",
                     "Friends",
                     "Daily Horoscope",
-                    "Log Out"
+                    "Log Out",
+                    "About"
                 )
 
 
@@ -684,15 +684,15 @@ fun SettingListScreen(selectedTab: MutableState<Tab>, userName: String?,activity
                 }
 
             }
-            // debug 測試現在選的東西
-            selectedMenuItem?.let { menuItem ->
-                Text(
-                    text = "Selected: $menuItem",
-                    fontSize = 16.sp,
-                    color = Color.Gray,
-                    modifier = Modifier.padding(16.dp)
-                )
-            }
+//            // debug 測試現在選的東西
+//            selectedMenuItem?.let { menuItem ->
+//                Text(
+//                    text = "Selected: $menuItem",
+//                    fontSize = 16.sp,
+//                    color = Color.Gray,
+//                    modifier = Modifier.padding(16.dp)
+//                )
+//            }
             BottomNavigationScreen(selectedTab)
 
             if (logoutDialog) {
