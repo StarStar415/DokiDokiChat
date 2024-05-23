@@ -257,6 +257,7 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
                             searchQuery = it
                             onSearch()
                         },
+
                         textStyle = androidx.compose.ui.text.TextStyle(
                             fontSize = 20.sp
                         ),
@@ -268,6 +269,8 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
                                 shape = MaterialTheme.shapes.small
                             )
                             .padding(8.dp)
+                        ,
+                        singleLine = true
                     )
                     IconButton(onClick = onSearch) {
                         Icon(Icons.Default.Search, contentDescription = "Search")
@@ -275,16 +278,6 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
                 }
 
                 // Friends List
-//                LazyColumn(
-//                    modifier = Modifier
-//                        .fillMaxWidth()
-//                        .padding(16.dp)
-//                        .weight(1f)
-//                ) {
-//                    items(filteredFriendsList) { friend ->
-//                        Text(text = friend.nickname, fontSize = 25.sp, modifier = Modifier.padding(8.dp))
-//                    }
-//                }
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -337,18 +330,17 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
                                 modifier = Modifier.fillMaxWidth(),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                BasicTextField(
+                                OutlinedTextField(
                                     value = addFriendQuery,
                                     onValueChange = { addFriendQuery = it },
                                     textStyle = androidx.compose.ui.text.TextStyle(fontSize = 20.sp),
                                     modifier = Modifier
                                         .weight(1f)
-                                        .background(
-                                            color = Color(0xFFFFD9EC),
-                                            shape = MaterialTheme.shapes.small
-                                        )
                                         .padding(8.dp)
+                                    ,
+                                    singleLine = true
                                 )
+
                                 IconButton(onClick = onAddFriendSearch) {
                                     Icon(Icons.Default.Search, contentDescription = "Search")
                                 }
@@ -401,6 +393,7 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
                                             addFriendQuery = TextFieldValue("")
                                             addFriendResult = null
                                         },
+                                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF48FB1)),
                                         modifier = Modifier.padding(top = 8.dp)
                                     ) {
                                         Text("加入好友")
@@ -410,7 +403,10 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
                         }
                     },
                     confirmButton = {
-                        TextButton(onClick = { showDialog = false }) {
+                        TextButton(
+                            onClick = { showDialog = false },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF48FB1))
+                        ) {
                             Text("close")
                         }
                     }
@@ -427,7 +423,8 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
                             OutlinedTextField(
                                 value = newName,
                                 onValueChange = { newName = it },
-                                placeholder = { Text("New Name") }
+                                placeholder = { Text("New Name") },
+                                singleLine = true
                             )
                         }
                     },
@@ -450,15 +447,13 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
                                             }
                                     }
                                 }
+
                             editNameDialog = false
                             updateNameRefresh()
-                        }) {
+                        },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF48FB1)),
+                        ) {
                             Text("Save")
-                        }
-                    },
-                    dismissButton = {
-                        Button(onClick = { editNameDialog = false }) {
-                            Text("Cancel")
                         }
                     }
                 )
@@ -467,57 +462,68 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
             if (editFriendDialog != null) {
                 AlertDialog(
                     onDismissRequest = { editFriendDialog = null },
-                    title = { Text("Edit Friend's Nickname") },
+                    title = {
+                        Text(
+                            text = "Edit Friend's Nickname"
+                        )
+                    },
                     text = {
-                        Column {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 8.dp)
+                        ) {
                             BasicTextField(
                                 value = newFriendNickname,
                                 onValueChange = { newFriendNickname = it },
-                                textStyle = androidx.compose.ui.text.TextStyle(fontSize = 20.sp),
+                                textStyle = androidx.compose.ui.text.TextStyle(
+                                    fontSize = 20.sp
+                                ),
                                 modifier = Modifier
                                     .background(
                                         color = Color(0xFFFFD9EC),
                                         shape = MaterialTheme.shapes.small
                                     )
                                     .padding(8.dp)
+                                    .fillMaxWidth(),
+                                singleLine = true
                             )
                         }
                     },
                     confirmButton = {
-                        Button(onClick = {
-                            val friendToUpdate = editFriendDialog
-                            if (friendToUpdate != null) {
-                                db.collection("user").whereEqualTo("username", userName)
-                                    .get(Source.SERVER)
-                                    .addOnCompleteListener { task ->
-                                        if (task.isSuccessful) {
-                                            val userDoc = task.result.documents[0]
-                                            val user = userDoc.toObject(User::class.java)
-                                            if (user != null) {
-                                                val updatedFriends = user.friends.map { friend ->
-                                                    if (friend.username == friendToUpdate.username) {
-                                                        friend.copy(nickname = newFriendNickname.text)
-                                                    } else {
-                                                        friend
+                        Button(
+                            onClick = {
+                                val friendToUpdate = editFriendDialog
+                                if (friendToUpdate != null) {
+                                    db.collection("user").whereEqualTo("username", userName)
+                                        .get(Source.SERVER)
+                                        .addOnCompleteListener { task ->
+                                            if (task.isSuccessful) {
+                                                val userDoc = task.result.documents[0]
+                                                val user = userDoc.toObject(User::class.java)
+                                                if (user != null) {
+                                                    val updatedFriends = user.friends.map { friend ->
+                                                        if (friend.username == friendToUpdate.username) {
+                                                            friend.copy(nickname = newFriendNickname.text)
+                                                        } else {
+                                                            friend
+                                                        }
                                                     }
+                                                    userDoc.reference.update("friends", updatedFriends)
                                                 }
-                                                userDoc.reference.update("friends", updatedFriends)
                                             }
+                                            editFriendDialog = null
                                         }
-                                        editFriendDialog = null
-                                    }
-                            }
-                        }) {
+                                }
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF48FB1)),
+                        ) {
                             Text("Save")
-                        }
-                    },
-                    dismissButton = {
-                        Button(onClick = { editFriendDialog = null }) {
-                            Text("Cancel")
                         }
                     }
                 )
             }
+
         }
     }
 }
