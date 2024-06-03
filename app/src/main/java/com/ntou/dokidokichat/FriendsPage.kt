@@ -541,7 +541,7 @@ fun ChatListScreen(selectedTab: MutableState<Tab>, userName: String?) {
                 task.result.documents[0].toObject(User::class.java)?.friends ?: emptyList()
             } else {
                 emptyList()
-            }.sortedWith( compareBy<Friend> { it.favor }.thenBy{it.nickname} )
+            }.sortedWith( compareByDescending<Friend> { it.favor }.thenBy{it.nickname} )
         }
     val context = LocalContext.current
 
