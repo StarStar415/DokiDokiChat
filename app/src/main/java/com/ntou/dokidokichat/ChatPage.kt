@@ -22,6 +22,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -32,6 +33,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -56,6 +58,9 @@ import com.ntou.dokidokichat.data.model.User
 import kotlinx.coroutines.delay
 
 lateinit var member_string: String
+
+
+
 class ChatPage : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -78,6 +83,7 @@ data class Message(
     val sentByUser: Boolean,
     val time: Timestamp = Timestamp.now()
 )
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -229,7 +235,8 @@ fun ShowChatScreen(userName: String, friendUserName: String, onBackPressed: () -
                     IconButton(onClick = onBackPressed) {
                         Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFFFFC1E0))
             )
         },
         content = { padding ->
@@ -297,7 +304,7 @@ fun ShowChatScreen(userName: String, friendUserName: String, onBackPressed: () -
                         modifier = Modifier.weight(1f),
                         placeholder = { Text("Enter message") }
                     )
-                    Button(
+                    IconButton(
                         onClick = {
                             if (messageText.text.isNotBlank()) {
                                 if (!noInternet) {
@@ -320,7 +327,7 @@ fun ShowChatScreen(userName: String, friendUserName: String, onBackPressed: () -
                         modifier = Modifier.padding(start = 8.dp)
                     ) {
                         if(!noInternet) {
-                            Text("Send")
+                            Icon(Icons.Filled.Send, contentDescription = "Send")
                         }
                         else {
                             CircularProgressIndicator(

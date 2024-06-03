@@ -37,8 +37,10 @@ import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Source
@@ -578,15 +580,22 @@ fun ChatListScreen(selectedTab: MutableState<Tab>, userName: String?) {
                         Box(
                             modifier = Modifier
                                 .size(60.dp)
-                                .background(color = Color(0xFFFFD9EC), shape = CircleShape)
+                                .background(color = getFavorColor(friend.favor, 100), shape = CircleShape),
+                            contentAlignment = Alignment.Center
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.Person,
-                                contentDescription = "Profile Picture",
-                                tint = Color.White,
-                                modifier = Modifier
-                                    .size(24.dp)
-                                    .align(Alignment.Center)
+//                            Icon(
+//                                imageVector = Icons.Default.Person,
+//                                contentDescription = "Profile Picture",
+//                                tint = Color.White,
+//                                modifier = Modifier
+//                                    .size(24.dp)
+//                                    .align(Alignment.Center)
+//                            )
+                            Text(
+                                text = friend.favor.toString(),
+                                color = Color.White,
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold
                             )
                         }
                         Spacer(modifier = Modifier.width(16.dp))
@@ -602,6 +611,13 @@ fun ChatListScreen(selectedTab: MutableState<Tab>, userName: String?) {
             BottomNavigationScreen(selectedTab)
         }
     }
+}
+
+fun getFavorColor(favor: Int, maxFavor: Int): Color {
+    val startColor = Color(0xFF7E2F49) // Dark Pink
+    val endColor = Color(0xFFFFC0CB)   // Light Pink
+    val fraction = favor.toFloat() / maxFavor
+    return lerp(startColor, endColor, fraction)
 }
 
 fun clickButtonToChat(context: Context, userName: String?, friendName: String) {

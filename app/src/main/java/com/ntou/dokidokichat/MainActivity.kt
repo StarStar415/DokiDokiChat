@@ -264,6 +264,7 @@ fun LoginScreen(db: FirebaseFirestore) {
 
                     },
 
+//                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF7E2F49)),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF48FB1)),
                     shape = MaterialTheme.shapes.medium,
                     modifier = Modifier
