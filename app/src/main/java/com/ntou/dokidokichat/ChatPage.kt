@@ -9,6 +9,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -48,6 +49,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.FirebaseFirestore
@@ -107,6 +109,7 @@ fun ShowChatScreen(userName: String, friendUserName: String, onBackPressed: () -
     var oldVisibleItemOffset by remember { mutableIntStateOf(1) }
     lateinit var friendData: User
     var friend_nickName by remember{ mutableStateOf("")}
+    var friend_favor by remember { mutableIntStateOf(0) }
 
     val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     LaunchedEffect(true) {
@@ -115,14 +118,31 @@ fun ShowChatScreen(userName: String, friendUserName: String, onBackPressed: () -
             delay(1000)
         }
     }
-    db.collection("user").whereEqualTo("username", friendUserName).get(Source.SERVER)
-        .addOnCompleteListener(){task->
-            if(task.isSuccessful) {
-                friendData = task.result.documents[0].toObject(User::class.java)!!
-                friend_nickName = friendData.name
-            }
-            else {
-                Toast.makeText(context, "尚未連接網路", Toast.LENGTH_SHORT).show()
+//    db.collection("user").whereEqualTo("username", friendUserName).get(Source.SERVER)
+//        .addOnCompleteListener(){task->
+//            if(task.isSuccessful) {
+//                friendData = task.result.documents[0].toObject(User::class.java)!!
+//                friend_nickName = friendData.name
+//
+//            }
+//            else {
+//                Toast.makeText(context, "尚未連接網路", Toast.LENGTH_SHORT).show()
+//            }
+//        }
+    db.collection("user")
+        .whereEqualTo("username", userName) // 查询当前用户
+        .get(Source.SERVER)
+        .addOnSuccessListener { userSnapshot ->
+            if (!userSnapshot.isEmpty) {
+                val userDocument = userSnapshot.documents[0]
+                val friendsList = userDocument.toObject(User::class.java)?.friends ?: emptyList()
+
+                friendsList.forEach { friend ->
+                    if(friend.username == friendUserName) {
+                        friend_nickName = friend.nickname
+                        friend_favor = friend.favor
+                    }
+                }
             }
         }
     val msgOldRefresh: () -> Unit = {
@@ -236,6 +256,21 @@ fun ShowChatScreen(userName: String, friendUserName: String, onBackPressed: () -
                         Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
+                actions = {
+                    Box(
+                        modifier = Modifier
+                            .size(40.dp)
+                            .background(getFavorColor(friend_favor,100), shape = CircleShape)
+                            .padding(8.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "$friend_favor",
+                            color = Color.White,
+                            fontSize = 14.sp
+                        )
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFFFFC1E0))
             )
         },
@@ -264,9 +299,10 @@ fun ShowChatScreen(userName: String, friendUserName: String, onBackPressed: () -
                                 Text(
                                     text = message.content,
                                     color = Color.White,
+                                    fontSize = 16.sp,
                                     modifier = Modifier
                                         .background(
-                                            MaterialTheme.colorScheme.primary,
+                                            Color(0xFFFFA4B4),
                                             shape = CircleShape
                                         )
                                         .padding(8.dp)
@@ -283,6 +319,7 @@ fun ShowChatScreen(userName: String, friendUserName: String, onBackPressed: () -
                                 Text(
                                     text = message.content,
                                     color = Color.Black,
+                                    fontSize = 16.sp,
                                     modifier = Modifier
                                         .background(Color.LightGray, shape = CircleShape)
                                         .padding(8.dp)
