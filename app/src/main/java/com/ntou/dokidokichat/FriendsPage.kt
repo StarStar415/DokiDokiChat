@@ -583,14 +583,6 @@ fun ChatListScreen(selectedTab: MutableState<Tab>, userName: String?) {
                                 .background(color = getFavorColor(friend.favor, 100), shape = CircleShape),
                             contentAlignment = Alignment.Center
                         ) {
-//                            Icon(
-//                                imageVector = Icons.Default.Person,
-//                                contentDescription = "Profile Picture",
-//                                tint = Color.White,
-//                                modifier = Modifier
-//                                    .size(24.dp)
-//                                    .align(Alignment.Center)
-//                            )
                             Text(
                                 text = friend.favor.toString(),
                                 color = Color.White,
@@ -700,15 +692,6 @@ fun SettingListScreen(selectedTab: MutableState<Tab>, userName: String?,activity
                 }
 
             }
-//            // debug 測試現在選的東西
-//            selectedMenuItem?.let { menuItem ->
-//                Text(
-//                    text = "Selected: $menuItem",
-//                    fontSize = 16.sp,
-//                    color = Color.Gray,
-//                    modifier = Modifier.padding(16.dp)
-//                )
-//            }
             BottomNavigationScreen(selectedTab)
 
             if (logoutDialog) {
@@ -756,9 +739,6 @@ fun handleMenuItemClick(item: String, activity: Activity, userName: String?, onT
         "Change Email" -> {
             clickButtonToChangeEmail(activity, userName)
         }
-        "Edit Profile" -> {
-
-        }
         "Set ID" -> {
             clickButtonToSetID(activity, userName)
         }
@@ -766,10 +746,16 @@ fun handleMenuItemClick(item: String, activity: Activity, userName: String?, onT
 
         }
         "Friends" -> {
-
+            clickButtonToShowFriends(activity, userName)
         }
         "Log Out" -> {
             onLogout()
+        }
+        "Daily Horoscope" -> {
+
+        }
+        "About" -> {
+
         }
     }
 }
@@ -794,6 +780,14 @@ fun clickButtonToSetID(context: Context, userName: String?) {
     val intent = Intent()
     intent.setClassName(context,
         "com.ntou.dokidokichat.SetIDPage")
+    intent.putExtra(MainActivity.KEY_USER_NAME, userName)
+    context.startActivity(intent)
+}
+
+fun clickButtonToShowFriends(context: Context, userName: String?) {
+    val intent = Intent()
+    intent.setClassName(context,
+        "com.ntou.dokidokichat.ShowFriendsPage")
     intent.putExtra(MainActivity.KEY_USER_NAME, userName)
     context.startActivity(intent)
 }
