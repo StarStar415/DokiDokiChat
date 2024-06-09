@@ -110,6 +110,7 @@ fun ShowChatScreen(userName: String, friendUserName: String, onBackPressed: () -
     lateinit var friendData: User
     var friend_nickName by remember{ mutableStateOf("")}
     var friend_favor by remember { mutableIntStateOf(0) }
+    var sendCount by remember { mutableIntStateOf(0)}
 
     val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     LaunchedEffect(true) {
@@ -358,6 +359,52 @@ fun ShowChatScreen(userName: String, friendUserName: String, onBackPressed: () -
                                         )
                                     newMsgFlag = true
                                     messageText = TextFieldValue("")
+                                    sendCount += 1
+                                    // 設定有沒有傳過訊息
+                                    db.collection("user")
+                                        .whereEqualTo("username", userName)
+                                        .get()
+                                        .addOnCompleteListener {task ->
+                                            val userDocument = task.result.documents.firstOrNull()
+                                            userDocument?.let { documentSnapshot ->
+                                                val friends = documentSnapshot.get("friends") as? MutableList<Map<String, Any>>
+                                                friends?.let {
+                                                    val friendIndex = it.indexOfFirst { friend -> friend["username"] == friendUserName }
+                                                    if (friendIndex != -1) {
+                                                        val updatedFriend = it[friendIndex].toMutableMap()
+                                                        updatedFriend["hasSentMsg"] = true
+                                                        it[friendIndex] = updatedFriend
+                                                        db.collection("user")
+                                                            .document(documentSnapshot.id)
+                                                            .update("friends", it)
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    // 傳送夠多訊息 好感度++
+                                    if(sendCount >= 10) {
+                                        sendCount = 0
+                                        db.collection("user")
+                                            .whereEqualTo("username", userName)
+                                            .get()
+                                            .addOnCompleteListener {task ->
+                                                val userDocument = task.result.documents.firstOrNull()
+                                                userDocument?.let { documentSnapshot ->
+                                                    val friends = documentSnapshot.get("friends") as? MutableList<Map<String, Any>>
+                                                    friends?.let {
+                                                        val friendIndex = it.indexOfFirst { friend -> friend["username"] == friendUserName }
+                                                        if (friendIndex != -1) {
+                                                            val updatedFriend = it[friendIndex].toMutableMap()
+                                                            updatedFriend["favor"] = (updatedFriend["favor"] as? Long?:0L) + 1
+                                                            it[friendIndex] = updatedFriend
+                                                            db.collection("user")
+                                                                .document(documentSnapshot.id)
+                                                                .update("friends", it)
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                    }
                                 }
                             }
                         },
