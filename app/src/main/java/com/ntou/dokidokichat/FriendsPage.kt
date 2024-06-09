@@ -128,9 +128,9 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
         db.collection("user").whereEqualTo("username", userName)
             .get(Source.SERVER)
             .addOnCompleteListener { task ->
-                friendsList = if(task.isSuccessful) {
+                friendsList = try {
                     task.result.documents[0].toObject(User::class.java)?.friends ?: emptyList()
-                } else {
+                } catch(e: Exception) {
                     emptyList()
                 }.sortedWith(compareBy<Friend>{it.favor}.thenBy{it.nickname})
                 onSearch()
@@ -165,9 +165,9 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
         db.collection("user").whereEqualTo("userID", query)
             .get(Source.SERVER)
             .addOnCompleteListener {task->
-                addFriendResult = if(task.isSuccessful) {
+                addFriendResult = try {
                     task.result.documents[0].toObject(User::class.java)
-                } else {
+                } catch(e: Exception) {
                     null
                 }
                 if (addFriendResult == null) {
@@ -365,7 +365,7 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
                                                 .addOnCompleteListener(){task->
                                                     val res = task.result.documents[0].toObject(User::class.java)
                                                     tmp = res!!
-                                                    res.friends += Friend(0,it.name,it.userID,it.username)
+                                                    res.friends += Friend(50,it.name,it.userID,it.username, false)
                                                     val userRef = db.collection("user").document(task.result.documents[0].id)
                                                     userRef.update("friends", res.friends)
                                                         .addOnSuccessListener {
