@@ -36,6 +36,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -71,7 +72,7 @@ fun ChangeEmailScreen(activity: Activity, UserName: String?) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Change Email") },
+                title = { Text(stringResource(id = R.string.change_email)) },
                 navigationIcon = {
                     IconButton(onClick = { activity.onBackPressed() }) {
                         Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")

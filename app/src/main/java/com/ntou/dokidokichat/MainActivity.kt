@@ -45,6 +45,7 @@ import androidx.compose.ui.graphics.asComposePath
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
@@ -132,7 +133,7 @@ fun LoginScreen(db: FirebaseFirestore) {
                 // 標題
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = "DokiDoki Chat",
+                    text = stringResource(id = R.string.appTitle),
                     fontSize = 30.sp,
                     modifier = Modifier
                         .padding(bottom = 10.dp)
@@ -147,7 +148,7 @@ fun LoginScreen(db: FirebaseFirestore) {
                     onValueChange = { username = it },
                     label = {
                         Text(
-                            "UserName",
+                            text = stringResource(id = R.string.Username),
                             fontSize = 15.sp
                         )
                     },
@@ -165,7 +166,7 @@ fun LoginScreen(db: FirebaseFirestore) {
                         onValueChange = { gmail = it },
                         label = {
                             Text(
-                                "Gmail",
+                                text = stringResource(id = R.string.Email),
                                 fontSize = 15.sp
                             )
                         },
@@ -182,7 +183,7 @@ fun LoginScreen(db: FirebaseFirestore) {
                     onValueChange = { password = it },
                     label = {
                         Text(
-                            "Password",
+                            text = stringResource(id = R.string.Password),
                             fontSize = 15.sp
                         )
                     },
@@ -204,7 +205,7 @@ fun LoginScreen(db: FirebaseFirestore) {
                 // 登入失敗提示
                 if(!loginSuccess) {
                     Text(
-                        "Login failed",
+                        text = stringResource(id = R.string.loginFailed),
                         color = Color.Red
                     )
                 }
@@ -212,7 +213,7 @@ fun LoginScreen(db: FirebaseFirestore) {
                 // username重複提示
                 if(usernameTaken) {
                     Text(
-                        "Username is already taken",
+                        text = stringResource(id = R.string.UsernameUse),
                         color = Color.Red
                     )
                 }
@@ -220,14 +221,14 @@ fun LoginScreen(db: FirebaseFirestore) {
                 // gmail重複提示
                 if(gmailTaken) {
                     Text(
-                        "Gmail is already registered",
+                        text = stringResource(id = R.string.EmailUse),
                         color = Color.Red
                     )
                 }
 
                 if(registerSuccess){
                     Text(
-                        "Registration was successful",
+                        text = stringResource(id = R.string.RegisiterSuccess),
                         color = Color.Red
                     )
                 }
@@ -277,7 +278,8 @@ fun LoginScreen(db: FirebaseFirestore) {
                         )
                     } else {
                         Text(
-                            if (showGmailField) "Sign up" else "Login",
+                            if (showGmailField)  stringResource(id = R.string.signUp)
+                            else  stringResource(id = R.string.login),
                             color = Color.White
                         )
                     }
@@ -296,14 +298,9 @@ fun LoginScreen(db: FirebaseFirestore) {
                         },
                         modifier = Modifier.padding(top = 8.dp) // 添加上方的外邊距
                     ) {
-                        Text(if (showGmailField) "Sign in" else "Sign up")
+                        Text(if (showGmailField) stringResource(id = R.string.signIn) else stringResource(id = R.string.signUp))
                     }
-                    TextButton(
-                        onClick = { /* 忘記密碼操作 */ },
-                        modifier = Modifier.padding(top = 8.dp) // 添加上方的外邊距
-                    ) {
-                        Text("Forgot password?")
-                    }
+
                 }
             }
 

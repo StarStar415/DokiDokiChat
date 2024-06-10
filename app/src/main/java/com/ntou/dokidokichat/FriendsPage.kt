@@ -40,6 +40,7 @@ import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.FirebaseFirestore
@@ -325,7 +326,7 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
             if (showDialog) {
                 AlertDialog(
                     onDismissRequest = { showDialog = false },
-                    title = { Text("Add Friend") },
+                    title = { Text(stringResource(id = R.string.add_friend)) },
                     text = {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Row(
@@ -398,7 +399,7 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
                                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF48FB1)),
                                         modifier = Modifier.padding(top = 8.dp)
                                     ) {
-                                        Text("加入好友")
+                                        Text(stringResource(id = R.string.add_friend))
                                     }
                                 }
                             }
@@ -409,7 +410,7 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
                             onClick = { showDialog = false },
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF48FB1))
                         ) {
-                            Text("close")
+                            Text(stringResource(id = R.string.cancel))
                         }
                     }
                 )
@@ -419,13 +420,13 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
             if (editNameDialog) {
                 AlertDialog(
                     onDismissRequest = { editNameDialog = false },
-                    title = { Text("Edit Name") },
+                    title = { Text(stringResource(id = R.string.edit_name)) },
                     text = {
                         Column {
                             OutlinedTextField(
                                 value = newName,
                                 onValueChange = { newName = it },
-                                placeholder = { Text("New Name") },
+                                placeholder = { Text(stringResource(id = R.string.newName)) },
                                 singleLine = true
                             )
                         }
@@ -455,7 +456,7 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
                         },
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF48FB1)),
                         ) {
-                            Text("Save")
+                            Text(stringResource(id = R.string.save))
                         }
                     }
                 )
@@ -466,7 +467,7 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
                     onDismissRequest = { editFriendDialog = null },
                     title = {
                         Text(
-                            text = "Edit Friend's Nickname"
+                            text = stringResource(id = R.string.edit_friend_nickname)
                         )
                     },
                     text = {
@@ -520,7 +521,7 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
                             },
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF48FB1)),
                         ) {
-                            Text("Save")
+                            Text(stringResource(id = R.string.save))
                         }
                     }
                 )
@@ -555,7 +556,7 @@ fun ChatListScreen(selectedTab: MutableState<Tab>, userName: String?) {
         ) {
             // Top "Chats" text
             Text(
-                text = "Chats",
+                text = stringResource(id = R.string.chats),
                 fontSize = 30.sp,
                 modifier = Modifier
                     .padding(16.dp)
@@ -580,7 +581,10 @@ fun ChatListScreen(selectedTab: MutableState<Tab>, userName: String?) {
                         Box(
                             modifier = Modifier
                                 .size(60.dp)
-                                .background(color = getFavorColor(friend.favor, 100), shape = CircleShape),
+                                .background(
+                                    color = getFavorColor(friend.favor, 100),
+                                    shape = CircleShape
+                                ),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
@@ -638,7 +642,7 @@ fun SettingListScreen(selectedTab: MutableState<Tab>, userName: String?,activity
 
 
             Text(
-                text = "Setting",
+                text = stringResource(id = R.string.setting),
                 fontSize = 30.sp,
                 modifier = Modifier
                     .padding(16.dp)
@@ -669,7 +673,12 @@ fun SettingListScreen(selectedTab: MutableState<Tab>, userName: String?,activity
                             .fillMaxWidth()
                             .clickable {
                                 selectedMenuItem = item
-                                handleMenuItemClick(item,activity,userName,{ selectedTab.value = it }, { logoutDialog = true })
+                                handleMenuItemClick(
+                                    item,
+                                    activity,
+                                    userName,
+                                    { selectedTab.value = it },
+                                    { logoutDialog = true })
                             }
                     ) {
                         Row(
@@ -697,8 +706,8 @@ fun SettingListScreen(selectedTab: MutableState<Tab>, userName: String?,activity
             if (logoutDialog) {
                 AlertDialog(
                     onDismissRequest = { logoutDialog = false },
-                    title = { Text("Log Out") },
-                    text = { Text("Are you sure you want to log out?") },
+                    title = { Text(stringResource(id = R.string.logOut)) },
+                    text = { Text(stringResource(id = R.string.logoutMes)) },
                     confirmButton = {
                         Button(
                             onClick = {
@@ -743,7 +752,7 @@ fun handleMenuItemClick(item: String, activity: Activity, userName: String?, onT
             clickButtonToSetID(activity, userName)
         }
         "Add Friend" -> {
-
+            clickButtonToAddFriends(activity, userName)
         }
         "Friends" -> {
             clickButtonToShowFriends(activity, userName)
@@ -760,6 +769,13 @@ fun handleMenuItemClick(item: String, activity: Activity, userName: String?, onT
     }
 }
 
+fun clickButtonToAddFriends(context: Context, userName: String?) {
+    val intent = Intent()
+    intent.setClassName(context,
+        "com.ntou.dokidokichat.addFriendsPage")
+    intent.putExtra(MainActivity.KEY_USER_NAME, userName)
+    context.startActivity(intent)
+}
 fun clickButtonToChangePassword(context: Context, userName: String?) {
     val intent = Intent()
     intent.setClassName(context,
@@ -807,21 +823,21 @@ fun BottomNavigation(
     ) {
         BottomNavigationItem(
             icon = Icons.Default.Person,
-            text = "Profile",
+            text = stringResource(id = R.string.profile),
             selected = selectedTab == Tab.Profile,
             onClick = { onTabSelected(Tab.Profile) },
         )
 
         BottomNavigationItem(
             icon = Icons.Default.Send,
-            text = "Chat List",
+            text = stringResource(id = R.string.chatList),
             selected = selectedTab == Tab.ChatList,
             onClick = { onTabSelected(Tab.ChatList) },
         )
 
         BottomNavigationItem(
             icon = Icons.Default.Settings,
-            text = "Setting",
+            text = stringResource(id = R.string.setting),
             selected = selectedTab == Tab.SettingList,
             onClick = { onTabSelected(Tab.SettingList) },
         )
