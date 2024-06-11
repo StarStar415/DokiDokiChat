@@ -395,7 +395,9 @@ fun ShowChatScreen(userName: String, friendUserName: String, onBackPressed: () -
                                                         val friendIndex = it.indexOfFirst { friend -> friend["username"] == friendUserName }
                                                         if (friendIndex != -1) {
                                                             val updatedFriend = it[friendIndex].toMutableMap()
-                                                            updatedFriend["favor"] = (updatedFriend["favor"] as? Long?:0L) + 1
+                                                            updatedFriend["favor"] =
+                                                                ((updatedFriend["favor"] as? Long
+                                                                    ?: 0L) + 1).coerceAtMost(100)
                                                             it[friendIndex] = updatedFriend
                                                             db.collection("user")
                                                                 .document(documentSnapshot.id)
