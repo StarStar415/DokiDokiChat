@@ -536,15 +536,44 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
 fun ChatListScreen(selectedTab: MutableState<Tab>, userName: String?) {
     var friendsList: List<Friend> by remember{ mutableStateOf(emptyList())}
     val db = FirebaseFirestore.getInstance()
-    db.collection("user").whereEqualTo("username", userName).get(Source.SERVER)
-        .addOnCompleteListener() {task->
-            friendsList = if(task.isSuccessful) {
-                task.result.documents[0].toObject(User::class.java)?.friends ?: emptyList()
-            } else {
-                emptyList()
-            }.sortedWith( compareByDescending<Friend> { it.favor }.thenBy{it.nickname} )
-        }
+
+    val addFriendRefresh: () -> Unit = {
+        db.collection("user").whereEqualTo("username", userName)
+            .get(Source.SERVER)
+            .addOnCompleteListener { task ->
+                friendsList = try {
+                    task.result.documents[0].toObject(User::class.java)?.friends ?: emptyList()
+                } catch(e: Exception) {
+                    emptyList()
+                }.sortedWith(compareByDescending<Friend>{it.favor}.thenBy{it.nickname})
+            }
+    }
+
+
+    addFriendRefresh()
     val context = LocalContext.current
+
+    db.collection("user").addSnapshotListener {snapshots, e->
+        if (e != null) {
+            Log.e("error", e.toString())
+            return@addSnapshotListener
+        }
+        if (snapshots != null) {
+            for (docChange in snapshots.documentChanges) {
+                when (docChange.type) {
+                    DocumentChange.Type.ADDED -> {
+                        //Nothing
+                    }
+                    DocumentChange.Type.MODIFIED -> {
+                        addFriendRefresh()
+                    }
+                    DocumentChange.Type.REMOVED -> {
+                        //Nothing
+                    }
+                }
+            }
+        }
+    }
 
     Surface(
         color = Color.White,
