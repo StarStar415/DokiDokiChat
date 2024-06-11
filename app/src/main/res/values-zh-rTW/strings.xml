@@ -44,4 +44,14 @@
     <string name="logOut">登出</string>
     <string name="logoutMes">"確定要登出嗎?"</string>
     <string name="newName">新名稱</string>
+    <string name="current_password">現在的密碼</string>
+    <string name="new_password">新密碼</string>
+    <string name="confirm_new_password">確認新密碼</string>
+    <string name="current_email">當前電子郵件</string>
+    <string name="new_email">新電子郵件</string>
+    <string name="confirm_new_email">確認電子郵件</string>
+    <string name="new_id">新 ID</string>
+    <string name="confirm_new_id">確認新 ID</string>
+    <string name="set_new_id">設定新 ID</string>
+    <string name="goto_chat">前往聊天</string>
 </resources>

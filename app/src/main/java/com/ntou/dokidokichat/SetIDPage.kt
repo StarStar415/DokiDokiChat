@@ -37,6 +37,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -70,7 +71,7 @@ fun SetIDScreen(activity: Activity, UserName: String?) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Set ID") },
+                title = { Text(stringResource(id = R.string.set_id)) },
                 navigationIcon = {
                     IconButton(onClick = { activity.onBackPressed() }) {
                         Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
@@ -89,7 +90,7 @@ fun SetIDScreen(activity: Activity, UserName: String?) {
             OutlinedTextField(
                 value = currentPassword,
                 onValueChange = { currentPassword = it },
-                label = { Text("Current Password", fontSize = 15.sp) },
+                label = { Text(stringResource(id = R.string.current_password), fontSize = 15.sp) },
                 visualTransformation = if (showCurrentPassword) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
                     IconButton(onClick = { showCurrentPassword = !showCurrentPassword }) {
@@ -111,7 +112,7 @@ fun SetIDScreen(activity: Activity, UserName: String?) {
             OutlinedTextField(
                 value = newID,
                 onValueChange = { newID = it },
-                label = { Text("New ID", fontSize = 15.sp) },
+                label = { Text(stringResource(id = R.string.new_id) , fontSize = 15.sp) },
                 visualTransformation = if (showNewID) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
                     IconButton(onClick = { showNewID = !showNewID }) {
@@ -132,7 +133,7 @@ fun SetIDScreen(activity: Activity, UserName: String?) {
             OutlinedTextField(
                 value = confirmID,
                 onValueChange = { confirmID = it },
-                label = { Text("Confirm New ID", fontSize = 15.sp) },
+                label = { Text(stringResource(id = R.string.confirm_new_id), fontSize = 15.sp) },
                 visualTransformation = if (showConfirmID) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
                     IconButton(onClick = { showConfirmID = !showConfirmID }) {
@@ -233,7 +234,7 @@ fun SetIDScreen(activity: Activity, UserName: String?) {
                 shape = MaterialTheme.shapes.medium,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Set new ID")
+                Text(stringResource(id = R.string.set_new_id))
             }
         }
     }

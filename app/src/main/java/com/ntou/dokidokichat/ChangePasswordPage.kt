@@ -36,6 +36,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -69,7 +70,7 @@ fun ChangePasswordScreen(activity: Activity, UserName: String?) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Change Password") },
+                title = { Text(stringResource(id = R.string.change_password)) },
                 navigationIcon = {
                     IconButton(onClick = { activity.onBackPressed() }) {
                         Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
@@ -89,7 +90,7 @@ fun ChangePasswordScreen(activity: Activity, UserName: String?) {
             OutlinedTextField(
                 value = currentPassword,
                 onValueChange = { currentPassword = it },
-                label = { Text("Current Password", fontSize = 15.sp) },
+                label = { Text(stringResource(id = R.string.current_password) , fontSize = 15.sp) },
                 visualTransformation = if (showCurrentPassword) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
                     IconButton(onClick = { showCurrentPassword = !showCurrentPassword }) {
@@ -110,7 +111,7 @@ fun ChangePasswordScreen(activity: Activity, UserName: String?) {
             OutlinedTextField(
                 value = newPassword,
                 onValueChange = { newPassword = it },
-                label = { Text("New Password", fontSize = 15.sp) },
+                label = { Text(stringResource(id = R.string.new_password), fontSize = 15.sp) },
                 visualTransformation = if (showNewPassword) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
                     IconButton(onClick = { showNewPassword = !showNewPassword }) {
@@ -131,7 +132,7 @@ fun ChangePasswordScreen(activity: Activity, UserName: String?) {
             OutlinedTextField(
                 value = confirmPassword,
                 onValueChange = { confirmPassword = it },
-                label = { Text("Confirm New Password", fontSize = 15.sp) },
+                label = { Text(stringResource(id = R.string.confirm_new_password), fontSize = 15.sp) },
                 visualTransformation = if (showConfirmPassword) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
                     IconButton(onClick = { showConfirmPassword = !showConfirmPassword }) {
@@ -223,7 +224,7 @@ fun ChangePasswordScreen(activity: Activity, UserName: String?) {
                 shape = MaterialTheme.shapes.medium,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Change Password")
+                Text(stringResource(id = R.string.change_password))
             }
         }
     }

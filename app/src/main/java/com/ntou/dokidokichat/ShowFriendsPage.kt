@@ -20,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
@@ -55,7 +56,7 @@ fun ShowFriendsScreen(activity: Activity, UserName: String?) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Friends") },
+                title = { Text(stringResource(id = R.string.friends)) },
                 navigationIcon = {
                     IconButton(onClick = { activity.onBackPressed() }) {
                         Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
@@ -140,7 +141,7 @@ fun FriendItem(friend: Friend, userName: String?, onUpdate: () -> Unit) {
                                 OutlinedTextField(
                                     value = newNameField.value,
                                     onValueChange = { newNameField.value = it },
-                                    label = { Text("編輯好友暱稱") },
+                                    label = { Text(stringResource(id = R.string.edit_friend_nickname)) },
                                     modifier = Modifier.weight(1f),
                                     singleLine = true
                                 )
@@ -202,7 +203,7 @@ fun FriendItem(friend: Friend, userName: String?, onUpdate: () -> Unit) {
                             modifier = Modifier.align(Alignment.CenterHorizontally),
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF48FB1)),
                         ) {
-                            Text("前往聊天")
+                            Text(stringResource(id = R.string.goto_chat))
                         }
                     }
                 },

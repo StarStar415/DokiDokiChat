@@ -91,7 +91,7 @@ fun ChangeEmailScreen(activity: Activity, UserName: String?) {
             OutlinedTextField(
                 value = currentPassword,
                 onValueChange = { currentPassword = it },
-                label = { Text("Current Password", fontSize = 15.sp) },
+                label = { Text(stringResource(id = R.string.current_password), fontSize = 15.sp) },
                 visualTransformation = if (showCurrentPassword) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
                     IconButton(onClick = { showCurrentPassword = !showCurrentPassword }) {
@@ -112,7 +112,7 @@ fun ChangeEmailScreen(activity: Activity, UserName: String?) {
             OutlinedTextField(
                 value = currentEmail,
                 onValueChange = { currentEmail = it },
-                label = { Text("Current Email", fontSize = 15.sp) },
+                label = { Text(stringResource(id = R.string.current_email), fontSize = 15.sp) },
                 visualTransformation = if (showCurrentEmail) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
                     IconButton(onClick = { showCurrentEmail = !showCurrentEmail }) {
@@ -133,7 +133,7 @@ fun ChangeEmailScreen(activity: Activity, UserName: String?) {
             OutlinedTextField(
                 value = newEmail,
                 onValueChange = { newEmail = it },
-                label = { Text("New Email", fontSize = 15.sp) },
+                label = { Text(stringResource(id = R.string.new_email), fontSize = 15.sp) },
                 visualTransformation = if (showNewEmail) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
                     IconButton(onClick = { showNewEmail = !showNewEmail }) {
@@ -154,7 +154,7 @@ fun ChangeEmailScreen(activity: Activity, UserName: String?) {
             OutlinedTextField(
                 value = confirmEmail,
                 onValueChange = { confirmEmail = it },
-                label = { Text("Confirm New Email", fontSize = 15.sp) },
+                label = { Text(stringResource(id = R.string.confirm_new_email), fontSize = 15.sp) },
                 visualTransformation = if (showConfirmEmail) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
                     IconButton(onClick = { showConfirmEmail = !showConfirmEmail }) {
@@ -250,7 +250,7 @@ fun ChangeEmailScreen(activity: Activity, UserName: String?) {
                 shape = MaterialTheme.shapes.medium,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Change Email")
+                Text(stringResource(id = R.string.change_email))
             }
         }
     }

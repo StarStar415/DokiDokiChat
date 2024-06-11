@@ -44,4 +44,14 @@
     <string name="logoutMes">"Are you sure you want to log out?"</string>
     <string name="cancel">close</string>
     <string name="newName">New Name</string>
+    <string name="current_password">"Current Password"</string>
+    <string name="new_password">"New Password"</string>
+    <string name="confirm_new_password">"Confirm New Password"</string>
+    <string name="current_email">"Current Email"</string>
+    <string name="new_email">"New Email"</string>
+    <string name="confirm_new_email">"Confirm New Email"</string>
+    <string name="new_id">"New ID"</string>
+    <string name="confirm_new_id">"Confirm New ID"</string>
+    <string name="set_new_id">"Set new ID"</string>
+    <string name="goto_chat">Go To Chat</string>
 </resources>
