@@ -77,14 +77,14 @@ fun addFriendsPage(activity: Activity, UserName: String?) {
                     null
                 }
                 if (addFriendResult == null) {
-                    Toast.makeText(context, "未找到該使用者", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, context.getString(R.string.user_not_found), Toast.LENGTH_SHORT).show()
                 }
                 else if (addFriendResult!!.username == userName) {
-                    Toast.makeText(context, "應該不會可憐到只能加自己好友吧", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, context.getString(R.string.cannot_add_self), Toast.LENGTH_LONG).show()
                     addFriendResult = null
                 }
                 else if (friendsList.any { it.username == addFriendResult!!.username }){
-                    Toast.makeText(context, "你不是已經有他的好友了嗎", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, context.getString(R.string.already_friends), Toast.LENGTH_LONG).show()
                     addFriendResult = null
                 }
             }

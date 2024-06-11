@@ -176,12 +176,12 @@ fun ChangeEmailScreen(activity: Activity, UserName: String?) {
             Button(
                 onClick = {
                     if (confirmEmail != newEmail) {
-                        Toast.makeText(context, "新電子郵件信箱兩次輸入不同", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, context.getString(R.string.email_do_not_match), Toast.LENGTH_SHORT).show()
                     }
                     else if (isAnyTextFieldEmpty(currentPassword,currentEmail,newEmail,confirmEmail)) {
                         Toast.makeText(
                             context,
-                            "欄位不得為空!!",
+                            context.getString(R.string.fields_cannot_be_empty),
                             Toast.LENGTH_SHORT
                         ).show()
                     }
@@ -214,7 +214,7 @@ fun ChangeEmailScreen(activity: Activity, UserName: String?) {
                                                     // 密碼更新成功
                                                     Toast.makeText(
                                                         context,
-                                                        "電子郵件已更新",
+                                                        context.getString(R.string.email_updated),
                                                         Toast.LENGTH_SHORT
                                                     ).show()
                                                 }
@@ -222,7 +222,7 @@ fun ChangeEmailScreen(activity: Activity, UserName: String?) {
                                                     // 密碼更新失敗
                                                     Toast.makeText(
                                                         context,
-                                                        "電子郵件更新失敗：$exception",
+                                                        context.getString(R.string.email_update_failed),
                                                         Toast.LENGTH_SHORT
                                                     ).show()
                                                 }
@@ -230,7 +230,7 @@ fun ChangeEmailScreen(activity: Activity, UserName: String?) {
                                             // 舊密碼輸入錯誤
                                             Toast.makeText(
                                                 context,
-                                                "舊密碼或是信箱輸入錯誤",
+                                                context.getString(R.string.incorrect_old_password_or_email),
                                                 Toast.LENGTH_LONG
                                             ).show()
                                         }
@@ -238,7 +238,7 @@ fun ChangeEmailScreen(activity: Activity, UserName: String?) {
                                         // 舊密碼驗證失敗
                                         Toast.makeText(
                                             context,
-                                            "舊密碼或是信箱輸入錯誤",
+                                            context.getString(R.string.incorrect_old_password_or_email),
                                             Toast.LENGTH_SHORT
                                         ).show()
                                     }

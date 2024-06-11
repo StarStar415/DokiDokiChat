@@ -160,7 +160,7 @@ fun SetIDScreen(activity: Activity, UserName: String?) {
                     else if (isAnyTextFieldEmpty(currentPassword,newID,confirmID)) {
                         Toast.makeText(
                             context,
-                            "欄位不得為空!!",
+                            context.getString(R.string.fields_cannot_be_empty),
                             Toast.LENGTH_SHORT
                         ).show()
                     }
@@ -170,7 +170,7 @@ fun SetIDScreen(activity: Activity, UserName: String?) {
                             if (exists) {
                                 Toast.makeText(
                                     context,
-                                    "ID 已被使用過 請換一個",
+                                    context.getString(R.string.id_exists),
                                     Toast.LENGTH_LONG
                                 ).show()
                             } else {
@@ -195,7 +195,7 @@ fun SetIDScreen(activity: Activity, UserName: String?) {
                                                             // ID更新成功
                                                             Toast.makeText(
                                                                 context,
-                                                                "ID已更新",
+                                                                context.getString(R.string.id_updated),
                                                                 Toast.LENGTH_SHORT
                                                             ).show()
                                                         }
@@ -203,7 +203,7 @@ fun SetIDScreen(activity: Activity, UserName: String?) {
                                                             // ID更新失敗
                                                             Toast.makeText(
                                                                 context,
-                                                                "ID更新失敗：$exception",
+                                                                context.getString(R.string.id_update_failed),
                                                                 Toast.LENGTH_SHORT
                                                             ).show()
                                                         }
@@ -211,7 +211,7 @@ fun SetIDScreen(activity: Activity, UserName: String?) {
                                                     // 舊密碼輸入錯誤
                                                     Toast.makeText(
                                                         context,
-                                                        "舊密碼輸入錯誤",
+                                                        context.getString(R.string.incorrect_old_password),
                                                         Toast.LENGTH_LONG
                                                     ).show()
                                                 }
@@ -219,7 +219,7 @@ fun SetIDScreen(activity: Activity, UserName: String?) {
                                                 // 舊密碼驗證失敗
                                                 Toast.makeText(
                                                     context,
-                                                    "舊密碼輸入錯誤",
+                                                    context.getString(R.string.incorrect_old_password),
                                                     Toast.LENGTH_SHORT
                                                 ).show()
                                             }
@@ -259,7 +259,7 @@ fun isIDExists(newID: String, context: Context, callback: (Boolean) -> Unit) {
         // 錯誤處理，如果查詢失敗
         Toast.makeText(
             context,
-            "查詢ID失敗：$exception",
+            context.getString(R.string.search_id_error),
             Toast.LENGTH_SHORT
         ).show()
         // 返回false

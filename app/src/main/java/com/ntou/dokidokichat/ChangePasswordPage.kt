@@ -154,12 +154,12 @@ fun ChangePasswordScreen(activity: Activity, UserName: String?) {
             Button(
                 onClick = {
                     if (confirmPassword != newPassword) {
-                        Toast.makeText(context, "新密碼兩次輸入不同", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, context.getText(R.string.passwords_do_not_match), Toast.LENGTH_SHORT).show()
                     }
                     else if (isAnyTextFieldEmpty(currentPassword,newPassword,confirmPassword)) {
                         Toast.makeText(
                             context,
-                            "欄位不得為空!!",
+                            context.getString(R.string.fields_cannot_be_empty),
                             Toast.LENGTH_SHORT
                         ).show()
                     }
@@ -188,7 +188,7 @@ fun ChangePasswordScreen(activity: Activity, UserName: String?) {
                                                     // 密碼更新成功
                                                     Toast.makeText(
                                                         context,
-                                                        "密碼已更新",
+                                                        context.getString(R.string.password_updated),
                                                         Toast.LENGTH_SHORT
                                                     ).show()
                                                 }
@@ -196,7 +196,7 @@ fun ChangePasswordScreen(activity: Activity, UserName: String?) {
                                                     // 密碼更新失敗
                                                     Toast.makeText(
                                                         context,
-                                                        "密碼更新失敗：$exception",
+                                                        context.getString(R.string.password_update_failed),
                                                         Toast.LENGTH_SHORT
                                                     ).show()
                                                 }
@@ -204,7 +204,7 @@ fun ChangePasswordScreen(activity: Activity, UserName: String?) {
                                             // 舊密碼輸入錯誤
                                             Toast.makeText(
                                                 context,
-                                                "舊密碼輸入錯誤",
+                                                context.getString(R.string.incorrect_old_password),
                                                 Toast.LENGTH_LONG
                                             ).show()
                                         }
@@ -212,7 +212,7 @@ fun ChangePasswordScreen(activity: Activity, UserName: String?) {
                                         // 舊密碼驗證失敗
                                         Toast.makeText(
                                             context,
-                                            "舊密碼驗證失敗",
+                                            context.getString(R.string.incorrect_old_password),
                                             Toast.LENGTH_SHORT
                                         ).show()
                                     }

@@ -24,7 +24,6 @@
     <string name="add_friend">Add Friend</string>
     <string name="edit_name">Edit Name</string>
     <string name="save">Save</string>
-    <string name="close">Close</string>
     <string name="chats">Chats</string>
     <string name="setting">Setting</string>
     <string name="profile">Profile</string>
@@ -39,7 +38,7 @@
     <string name="edit_friend_nickname">"Edit Friend's Nickname"</string>
     <string name="user_not_found">user not found</string>
     <string name="already_friends">already friends</string>
-    <string name="profile_picture">profile picture</string>
+    <string name="cannot_add_self">"You can't add yourself as a friend, can you?"</string>
     <string name="logOut">Log Out</string>
     <string name="logoutMes">"Are you sure you want to log out?"</string>
     <string name="cancel">close</string>
@@ -54,4 +53,21 @@
     <string name="confirm_new_id">"Confirm New ID"</string>
     <string name="set_new_id">"Set new ID"</string>
     <string name="goto_chat">Go To Chat</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+
+    <string name="email_do_not_match">The new email addresses do not match</string>
+
+    <string name="passwords_do_not_match">New password entered is different</string>
+    <string name="fields_cannot_be_empty">Fields cannot be empty!!</string>
+    <string name="email_updated">Email has been updated</string>
+    <string name="email_update_failed">Failed to update email</string>
+    <string name="incorrect_old_password_or_email">Incorrect old password or email</string>
+    <string name="incorrect_old_password">Incorrect old password</string>
+    <string name="password_update_failed">Password update failed</string>
+    <string name="password_updated">Password updated</string>
+    <string name="search_id_error">search id error</string>
+    <string name="id_exists">The ID has been used, please change it.</string>
+    <string name="id_update_failed">ID update failed</string>
+    <string name="id_updated">ID has been updated</string>
 </resources>

@@ -172,14 +172,14 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
                     null
                 }
                 if (addFriendResult == null) {
-                    Toast.makeText(context, "未找到該使用者", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, context.getString(R.string.user_not_found), Toast.LENGTH_SHORT).show()
                 }
                 else if (addFriendResult!!.username == userName) {
-                    Toast.makeText(context, "應該不會可憐到只能加自己好友吧", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, context.getString(R.string.cannot_add_self), Toast.LENGTH_LONG).show()
                     addFriendResult = null
                 }
                 else if (friendsList.any { it.username == addFriendResult!!.username }){
-                    Toast.makeText(context, "你不是已經有他的好友了嗎", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, context.getString(R.string.already_friends), Toast.LENGTH_LONG).show()
                     addFriendResult = null
                 }
             }
@@ -654,27 +654,38 @@ fun SettingListScreen(selectedTab: MutableState<Tab>, userName: String?,activity
                     .weight(1f),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
+//                val menuItems = listOf(
+//                    "Profile",
+//                    "Change Password",
+//                    "Change Email",
+//                    "Set ID",
+//                    "Add Friend",
+//                    "Friends",
+//                    "Daily Horoscope",
+//                    "Log Out",
+//                    "About"
+//                )
                 val menuItems = listOf(
-                    "Profile",
-                    "Change Password",
-                    "Change Email",
-                    "Set ID",
-                    "Add Friend",
-                    "Friends",
-                    "Daily Horoscope",
-                    "Log Out",
-                    "About"
+                    R.string.profile,
+                    R.string.change_password,
+                    R.string.change_email,
+                    R.string.set_id,
+                    R.string.add_friend,
+                    R.string.friends,
+                    R.string.log_out,
+                    R.string.about
                 )
 
 
-                items(menuItems) { item ->
+                items(menuItems) {itemResId ->
+                    val item = stringResource(id = itemResId)
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable {
-                                selectedMenuItem = item
+                                selectedMenuItem = item ?: "StarStar415"
                                 handleMenuItemClick(
-                                    item,
+                                    itemResId,
                                     activity,
                                     userName,
                                     { selectedTab.value = it },
@@ -688,7 +699,7 @@ fun SettingListScreen(selectedTab: MutableState<Tab>, userName: String?,activity
                                 .padding(16.dp)
                         ) {
                             Text(
-                                text = item,
+                                text = stringResource(id = itemResId),
                                 fontSize = 25.sp,
                                 modifier = Modifier.weight(1f)
                             )
@@ -717,7 +728,7 @@ fun SettingListScreen(selectedTab: MutableState<Tab>, userName: String?,activity
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF48FB1)),
                             shape = MaterialTheme.shapes.medium,
                         ) {
-                            Text("Yes", color = Color.White)
+                            Text(stringResource(id = R.string.yes), color = Color.White)
                         }
                     },
                     dismissButton = {
@@ -727,7 +738,7 @@ fun SettingListScreen(selectedTab: MutableState<Tab>, userName: String?,activity
                             shape = MaterialTheme.shapes.medium,
 
                         ) {
-                            Text("No", color = Color.White)
+                            Text(stringResource(id = R.string.no), color = Color.White)
                         }
                     }
                 )
@@ -737,35 +748,34 @@ fun SettingListScreen(selectedTab: MutableState<Tab>, userName: String?,activity
     }
 }
 
-fun handleMenuItemClick(item: String, activity: Activity, userName: String?, onTabSelected: (Tab) -> Unit, onLogout: () -> Unit) {
-    when (item) {
-        "Profile" -> {
+
+fun handleMenuItemClick(itemResId: Int, activity: Activity, userName: String?, onTabSelected: (Tab) -> Unit, onLogout: () -> Unit) {
+    when (itemResId) {
+        R.string.profile -> {
             onTabSelected(Tab.Profile)
         }
-        "Change Password" -> {
+        R.string.change_password -> {
             clickButtonToChangePassword(activity, userName)
         }
-        "Change Email" -> {
+        R.string.change_email -> {
             clickButtonToChangeEmail(activity, userName)
         }
-        "Set ID" -> {
+        R.string.set_id -> {
             clickButtonToSetID(activity, userName)
         }
-        "Add Friend" -> {
+        R.string.add_friend -> {
             clickButtonToAddFriends(activity, userName)
         }
-        "Friends" -> {
+        R.string.friends -> {
             clickButtonToShowFriends(activity, userName)
         }
-        "Log Out" -> {
+        R.string.log_out -> {
             onLogout()
         }
-        "Daily Horoscope" -> {
-
+        R.string.about -> {
+            // Add your implementation here
         }
-        "About" -> {
 
-        }
     }
 }
 
