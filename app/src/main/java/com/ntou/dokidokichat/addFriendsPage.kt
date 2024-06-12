@@ -51,14 +51,14 @@ class addFriendsPage : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             val UserName = intent.getStringExtra(MainActivity.KEY_USER_NAME)
-            addFriendsPage(this, UserName)
+            AddFriendsScreen(this, UserName)
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun addFriendsPage(activity: Activity, UserName: String?) {
+fun AddFriendsScreen(activity: Activity, UserName: String?) {
     val userName = UserName ?: "StarStar415"
     var addFriendQuery by remember { mutableStateOf(TextFieldValue("")) }
     var addFriendResult by remember { mutableStateOf<User?>(null) }

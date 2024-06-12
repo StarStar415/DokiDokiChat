@@ -70,4 +70,6 @@
     <string name="id_exists">The ID has been used, please change it.</string>
     <string name="id_update_failed">ID update failed</string>
     <string name="id_updated">ID has been updated</string>
+    <string name="overview">Overview</string>
+    <string name="about_text">"In modern society, the busy pace of life often leads us to unintentionally overlook the important people around us. To help us better focus on and cherish these valuable relationships, we developed the 'DokiDoki Chat' app.\n\nWe have made 'affinity' tangible by using simple rules to quantify the goodwill your friends have towards you. Each interaction will affect the score of your relationship, reminding you of the importance of staying connected with friends. Regularly chatting with friends can help maintain and enhance your relationships.\n\nThrough 'DokiDoki Chat', you can clearly see which friends may have become distant due to your neglect, allowing you to proactively repair and strengthen these connections. This way, you won't feel regret from neglect, and you will better appreciate each friendship.\n\nThe goal of 'DokiDoki Chat' is to make every user realize that every friend around them is precious. We hope that through this app, everyone can pay more attention to each other, making every relationship deeper and more meaningful."</string>
 </resources>

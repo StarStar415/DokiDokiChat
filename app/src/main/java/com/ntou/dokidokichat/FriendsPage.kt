@@ -683,17 +683,6 @@ fun SettingListScreen(selectedTab: MutableState<Tab>, userName: String?,activity
                     .weight(1f),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-//                val menuItems = listOf(
-//                    "Profile",
-//                    "Change Password",
-//                    "Change Email",
-//                    "Set ID",
-//                    "Add Friend",
-//                    "Friends",
-//                    "Daily Horoscope",
-//                    "Log Out",
-//                    "About"
-//                )
                 val menuItems = listOf(
                     R.string.profile,
                     R.string.change_password,
@@ -802,12 +791,19 @@ fun handleMenuItemClick(itemResId: Int, activity: Activity, userName: String?, o
             onLogout()
         }
         R.string.about -> {
-            // Add your implementation here
+            clickButtonToAboutPage(activity, userName)
         }
 
     }
 }
 
+fun clickButtonToAboutPage(context: Context, userName: String?) {
+    val intent = Intent()
+    intent.setClassName(context,
+        "com.ntou.dokidokichat.aboutPage")
+    intent.putExtra(MainActivity.KEY_USER_NAME, userName)
+    context.startActivity(intent)
+}
 fun clickButtonToAddFriends(context: Context, userName: String?) {
     val intent = Intent()
     intent.setClassName(context,

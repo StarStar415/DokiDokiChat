@@ -16,6 +16,9 @@
         android:theme="@style/Theme.DokiDokiChat"
         tools:targetApi="31">
         <activity
+            android:name=".aboutPage"
+            android:exported="false" />
+        <activity
             android:name=".addFriendsPage"
             android:exported="false" />
         <activity
