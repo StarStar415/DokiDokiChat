@@ -382,7 +382,7 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
                                                 .get(Source.SERVER)
                                                 .addOnCompleteListener(){task->
                                                     val res = task.result.documents[0].toObject(User::class.java)
-                                                    res!!.friends += Friend(0,tmp.name,tmp.userID,tmp.username)
+                                                    res!!.friends += Friend(50,tmp.name,tmp.userID,tmp.username)
                                                     val userRef = db.collection("user").document(task.result.documents[0].id)
                                                     userRef.update("friends", res!!.friends)
                                                         .addOnSuccessListener {
