@@ -155,7 +155,7 @@ fun SetIDScreen(activity: Activity, UserName: String?) {
             Button(
                 onClick = {
                     if (confirmID != newID) {
-                        Toast.makeText(context, "新電子郵件信箱兩次輸入不同", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, context.getString(R.string.id_do_not_match), Toast.LENGTH_SHORT).show()
                     }
                     else if (isAnyTextFieldEmpty(currentPassword,newID,confirmID)) {
                         Toast.makeText(
@@ -224,7 +224,7 @@ fun SetIDScreen(activity: Activity, UserName: String?) {
                                                 ).show()
                                             }
                                         }
-                                }// ID不存在，執行相應的操作
+                                }
                             }
                         }
 

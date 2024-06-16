@@ -57,6 +57,7 @@
     <string name="no">否</string>
     <string name="email_do_not_match">新電子郵件信箱兩次輸入不同</string>
     <string name="passwords_do_not_match">新密碼輸入不同</string>
+    <string name="id_do_not_match">新 ID 兩次輸入不同</string>
     <string name="fields_cannot_be_empty">欄位不得為空!!</string>
     <string name="email_updated">電子郵件已更新</string>
     <string name="email_update_failed">電子郵件更新失敗</string>

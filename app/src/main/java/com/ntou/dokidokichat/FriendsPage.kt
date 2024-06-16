@@ -73,7 +73,7 @@ fun ShowUserChatScreen(activity: Activity, UserName: String?, PassWord: String?)
     val selectedTab = remember { mutableStateOf(Tab.Profile) }
 
     Surface(
-        color = Color.White, // White background
+        color = Color.White,
         modifier = Modifier.fillMaxSize()
     ) {
         Column(
@@ -110,7 +110,7 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
     var showDialog by remember { mutableStateOf(false) }
     var addFriendQuery by remember { mutableStateOf(TextFieldValue("")) }
     var addFriendResult by remember { mutableStateOf<User?>(null) }
-    var userDisplayName by remember { mutableStateOf("User") } // For displaying the user's name
+    var userDisplayName by remember { mutableStateOf("User") }
     var editNameDialog by remember { mutableStateOf(false) }
     var newName by remember { mutableStateOf(TextFieldValue("")) }
     var editFriendDialog by remember { mutableStateOf<Friend?>(null) }
@@ -639,8 +639,8 @@ fun ChatListScreen(selectedTab: MutableState<Tab>, userName: String?) {
 }
 
 fun getFavorColor(favor: Int, maxFavor: Int): Color {
-    val startColor = Color(0xFF7E2F49) // Dark Pink
-    val endColor = Color(0xFFFFC0CB)   // Light Pink
+    val startColor = Color(0xFF7E2F49)
+    val endColor = Color(0xFFFFC0CB)
     val fraction = favor.toFloat() / maxFavor
     return lerp(startColor, endColor, fraction)
 }

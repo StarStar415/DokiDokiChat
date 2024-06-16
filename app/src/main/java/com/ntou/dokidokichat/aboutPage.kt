@@ -85,7 +85,7 @@ fun AboutScreen(activity: Activity, UserName: String?) {
                 .fillMaxSize()
                 .padding(innerPadding)
                 .padding(25.dp)
-                .verticalScroll(rememberScrollState()) // 使內容可垂直滑動
+                .verticalScroll(rememberScrollState()) // 滑動
         ) {
             Text(
                 text = stringResource(id = R.string.appTitle),

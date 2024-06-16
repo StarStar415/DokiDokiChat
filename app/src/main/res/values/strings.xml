@@ -59,6 +59,8 @@
     <string name="email_do_not_match">The new email addresses do not match</string>
 
     <string name="passwords_do_not_match">New password entered is different</string>
+
+    <string name="id_do_not_match">New ID entered is different</string>
     <string name="fields_cannot_be_empty">Fields cannot be empty!!</string>
     <string name="email_updated">Email has been updated</string>
     <string name="email_update_failed">Failed to update email</string>

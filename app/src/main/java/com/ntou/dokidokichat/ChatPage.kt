@@ -131,7 +131,7 @@ fun ShowChatScreen(userName: String, friendUserName: String, onBackPressed: () -
 //            }
 //        }
     db.collection("user")
-        .whereEqualTo("username", userName) // 查询当前用户
+        .whereEqualTo("username", userName)
         .get(Source.SERVER)
         .addOnSuccessListener { userSnapshot ->
             if (!userSnapshot.isEmpty) {

@@ -296,7 +296,7 @@ fun LoginScreen(db: FirebaseFirestore) {
                             usernameTaken = false
                             registerSuccess = false
                         },
-                        modifier = Modifier.padding(top = 8.dp) // 添加上方的外邊距
+                        modifier = Modifier.padding(top = 8.dp)
                     ) {
                         Text(if (showGmailField) stringResource(id = R.string.signIn) else stringResource(id = R.string.signUp))
                     }
