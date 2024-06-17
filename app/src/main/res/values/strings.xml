@@ -55,11 +55,13 @@
     <string name="goto_chat">Go To Chat</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
-
+    <string name="update_name">"Name updated successfully"</string>
+    <string name="update_nickname">"Friend's nickname modified successfully"</string>
     <string name="email_do_not_match">The new email addresses do not match</string>
 
     <string name="passwords_do_not_match">New password entered is different</string>
 
+    <string name="add_friends_success">Friend added successfullyƒ</string>
     <string name="id_do_not_match">New ID entered is different</string>
     <string name="fields_cannot_be_empty">Fields cannot be empty!!</string>
     <string name="email_updated">Email has been updated</string>

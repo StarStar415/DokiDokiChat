@@ -175,7 +175,7 @@ fun AddFriendsScreen(activity: Activity, UserName: String?) {
                                         val userRef = db.collection("user").document(task.result.documents[0].id)
                                         userRef.update("friends", res.friends)
                                             .addOnSuccessListener {
-                                                Toast.makeText(context, "加入成功", Toast.LENGTH_SHORT).show()
+                                                Toast.makeText(context, context.getString(R.string.add_friends_success), Toast.LENGTH_SHORT).show()
                                             }
                                             .addOnFailureListener { e ->
                                                 Log.e("error", "Error adding friend")

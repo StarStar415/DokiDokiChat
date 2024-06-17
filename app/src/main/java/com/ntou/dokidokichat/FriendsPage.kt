@@ -370,7 +370,7 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
                                                     val userRef = db.collection("user").document(task.result.documents[0].id)
                                                     userRef.update("friends", res.friends)
                                                         .addOnSuccessListener {
-                                                            Toast.makeText(context, "加入成功", Toast.LENGTH_SHORT).show()
+                                                            Toast.makeText(context, context.getString(R.string.add_friends_success), Toast.LENGTH_SHORT).show()
                                                         }
                                                         .addOnFailureListener { e ->
                                                             Log.e("error", "Error adding friend")
@@ -443,7 +443,7 @@ fun UserProfileScreen(selectedTab: MutableState<Tab>, userName: String?) {
                                         userRef.update("name", newNameStr)
                                             .addOnSuccessListener {
                                                 userDisplayName = newNameStr
-                                                Toast.makeText(context, "Name updated successfully", Toast.LENGTH_SHORT).show()
+                                                Toast.makeText(context, context.getString(R.string.update_name), Toast.LENGTH_SHORT).show()
                                             }
                                             .addOnFailureListener { e ->
                                                 Log.e("error", "Error updating name", e)

@@ -150,7 +150,7 @@ fun FriendItem(friend: Friend, userName: String?, onUpdate: () -> Unit) {
                                         // 更新資料庫好友暱稱
                                         val newNickname = newNameField.value.text
                                         updateFriendNickname(db, userName, friend, newNickname) {
-                                            Toast.makeText(context, "已更新好友名稱為 $newNickname", Toast.LENGTH_SHORT).show()
+                                            Toast.makeText(context, context.getString(R.string.update_nickname), Toast.LENGTH_SHORT).show()
                                             isEditing = false
                                             showDialog = false
                                             onUpdate()
